@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama-3-3-70b-instruct
+  namespace: default
+spec:
+    selector:
+      app: llama-3-3-70b-instruct
+    ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+    type: ClusterIP
