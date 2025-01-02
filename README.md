@@ -80,3 +80,27 @@ Now deploy other Kubernetes configs to run the model:
 ```bash
 kubectl apply -f configs/llama-3-3-70b-instruct
 ```
+
+### Step 6: Access the model
+
+Create a port-forward so that you can access the model locally:
+
+```bash
+kubectl port-forward svc/llama-3-3-70b-instruct 8000
+```
+
+Now run this sample query to check if it is working fine:
+
+```bash
+curl -X POST "http://localhost:8000/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  --data '{
+  "model": "meta-llama/Llama-3.3-70B-Instruct",
+  "messages": [
+   {
+    "role": "user",
+    "content": "Explain the origin of Llama the animal?"
+   }
+  ]
+ }' | jq
+```
