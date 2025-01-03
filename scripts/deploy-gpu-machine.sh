@@ -32,12 +32,16 @@ function install_gpu_driver() {
         }'
 }
 
-function ssh() {
+function ssh_direct() {
     exec ssh -i ${SSH_KEY%.pub} ${USER_NAME}@${VM_NAME}.${AZURE_REGION}.cloudapp.azure.com
 }
 
 function ssh_tailscale() {
     exec ssh -i ${SSH_KEY%.pub} "${USER_NAME}@${VM_NAME}.tail63200.ts.net"
+}
+
+function port_forward_tailscale() {
+    ssh -L $1:localhost:$1 -i ${SSH_KEY%.pub} "${USER_NAME}@${VM_NAME}.tail63200.ts.net"
 }
 
 function install_tailscale() {
@@ -60,7 +64,7 @@ install_gpu_driver)
     install_gpu_driver
     ;;
 ssh)
-    ssh
+    ssh_direct
     ;;
 ssh_tailscale)
     ssh_tailscale
@@ -77,9 +81,13 @@ all_tailscale)
     install_tailscale
     install_gpu_driver
     ;;
+port_forward_tailscale)
+    port_forward_tailscale $2
+    ;;
 help)
     set +x
-    echo "Usage: $0 [deploy_vm | install_gpu_driver | ssh | ssh_tailscale"
-    echo "| install_tailscale | all | all_tailscale | help]"
+    echo "Usage: $0 [deploy_vm | install_gpu_driver | install_tailscale"
+    echo "| ssh | ssh_tailscale | port_forward_tailscale"
+    echo "| all | all_tailscale | help]"
     ;;
 esac
