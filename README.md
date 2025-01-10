@@ -2,6 +2,19 @@
 
 This has instructions to run Llama on Kubernetes on Azure.
 
+## Deploy Infra: Option 1: Using AKS
+
+### Step 1: Create an AKS cluster
+
+Make necesary changes to the `.env` file as you see fit and then run the following command:
+
+```bash
+source .env
+./scripts/deploy-aks.sh
+```
+
+## Deploy Infra: Option 2: Single Node VM
+
 Here we will create a machine with GPUs and then deploy single node Kubernetes on it using nvkind.
 
 ### Step 1: Create a GPU machine on Azure
@@ -50,7 +63,9 @@ Run the following command to deploy single node Kubernetes on the machine:
 ./scripts/deploy-single-node-k8s.sh
 ```
 
-### Step 4: Install NVIDIA drivers on Kubernetes
+## Prepare Kubernetes for LLM deployment
+
+### Install NVIDIA drivers on Kubernetes
 
 Now run this script to install NVIDIA drivers on Kubernetes:
 
@@ -58,7 +73,9 @@ Now run this script to install NVIDIA drivers on Kubernetes:
 ./scripts/install-nvidia-drivers-on-k8s.sh
 ```
 
-### Step 5: Deploy Llama-3.3-70B-Instruct on Kubernetes
+## Deploy LLM
+
+### 1. Deploy Llama-3.3-70B-Instruct on Kubernetes
 
 **Permission to use the model:**
 
@@ -81,7 +98,7 @@ Now deploy other Kubernetes configs to run the model:
 kubectl apply -f configs/llama-3-3-70b-instruct
 ```
 
-### Step 6: Access the model
+**Access the model:**
 
 Create a port-forward so that you can access the model locally:
 
