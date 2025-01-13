@@ -4,9 +4,7 @@ This has instructions to run Llama on Kubernetes on Azure.
 
 ## Deploy Infra: Option 1: Using AKS
 
-### Step 1: Create an AKS cluster
-
-Make necesary changes to the `.env` file as you see fit and then run the following command:
+Make necesary changes to the `.env` file as you see fit and then run the following command to deploy AKS:
 
 ```bash
 source .env
@@ -15,53 +13,7 @@ source .env
 
 ## Deploy Infra: Option 2: Single Node VM
 
-Here we will create a machine with GPUs and then deploy single node Kubernetes on it using nvkind.
-
-### Step 1: Create a GPU machine on Azure
-
-Make necesary changes to the `.env` file as you see fit and then run the following command:
-
-```bash
-source .env
-./scripts/deploy-gpu-machine.sh all
-```
-
-You can also SSH into the machine using the following command in a new terminal tab:
-
-```bash
-source .env
-./scripts/deploy-gpu-machine.sh ssh
-```
-
-> [!NOTE]
-> The GPU driver installation usually takes a while. You can check the status of the installation by SSHing into the machine and running the following command:
-> `./scripts/setup-node-for-single-node-k8s.sh check_driver_installation`
-
-> [!TIP]
-> If the driver installation fails, then you can enter into the machine and delete the file by running the command: `sudo rm /var/log/azure/nvidia-vmext-status`. And then restart the driver installation by running the command: `./scripts/deploy-gpu-machine.sh install_gpu_driver` on the host.
-
-### Step 2: Setup Kubernetes on the GPU machine
-
-Once inside the machine, first clone this repository again:
-
-```bash
-git clone https://github.com/surajssd/llama-k8s/
-cd llama-k8s
-```
-
-Now let's ensure this machine is ready to start a single node Kubernetes cluster, so run the following commands:
-
-```bash
-./scripts/setup-node-for-single-node-k8s.sh all
-```
-
-### Step 3: Deploy Kubernetes on the GPU machine
-
-Run the following command to deploy single node Kubernetes on the machine:
-
-```bash
-./scripts/deploy-single-node-k8s.sh
-```
+Follow the series of steps in [this document](docs/single-node-gpu-vm-setup.md) to deploy a single node VM with GPUs and then deploy Kubernetes on it.
 
 ## Prepare Kubernetes for LLM deployment
 
@@ -83,10 +35,15 @@ Get access to the model by accepting the terms here: <https://huggingface.co/met
 
 **Huggingface Secret:**
 
-Before we can deploy the model create a secret to access the model from Huggingface. You can create a token for Huggingface by going here: <https://huggingface.co/settings/tokens>. You only need a "Read" token.
+Before we can deploy the model create a secret to access the model from Huggingface. You can create a token for Huggingface by going [here](https://huggingface.co/settings/tokens). You only need a "Read" token. Copy and export the token as an environment variable:
 
 ```bash
 export HF_TOKEN=""
+```
+
+Now create a secret in Kubernetes:
+
+```bash
 kubectl create secret generic hf-token-secret --from-literal token=${HF_TOKEN}
 ```
 
