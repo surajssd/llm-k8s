@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phi-4
+  namespace: default
+  labels:
+    app: phi-4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phi-4
+  template:
+    metadata:
+      labels:
+        app: phi-4
+    spec:
+      volumes:
+      - name: cache-volume
+        persistentVolumeClaim:
+          claimName: phi-4
+      - name: shm
+        emptyDir:
+          medium: Memory
+      containers:
+      - name: phi-4
+        image: vllm/vllm-openai:latest
+        command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+        args: [
+          "--model", "microsoft/phi-4",
+          "--tensor-parallel-size", "1",
+          "--pipeline-parallel-size", "1",
+          "--distributed-executor-backend", "mp"
+        ]
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            # The model has 6 safetensors of less than 5GB each, so one A100
+            # with 80GB is more than enough
+            nvidia.com/gpu: "1"
+          requests:
+            nvidia.com/gpu: "1"
+        volumeMounts:
+        - mountPath: /root/.cache/huggingface
+          name: cache-volume
+        - name: shm
+          mountPath: /dev/shm
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 600

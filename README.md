@@ -78,3 +78,37 @@ curl -X POST "http://localhost:8000/v1/chat/completions" \
   ]
  }' | jq
 ```
+
+### 2. Deploy Microsoft Phi4 on Kubernetes
+
+**Deploy the model:**
+
+Deploy Kubernetes configs to run the model:
+
+```bash
+kubectl apply -f configs/phi-4/
+```
+
+**Access the model:**
+
+Create a port-forward so that you can access the model locally:
+
+```bash
+kubectl port-forward svc/phi-4 8000
+```
+
+Now run this sample query to check if it is working fine:
+
+```bash
+curl -X POST "http://localhost:8000/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  --data '{
+  "model": "microsoft/phi-4",
+  "messages": [
+   {
+    "role": "user",
+    "content": "Explain the origin of Llama the animal?"
+   }
+  ]
+ }' | jq
+```
