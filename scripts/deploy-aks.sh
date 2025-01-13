@@ -7,6 +7,9 @@ function deploy_aks() {
         --name "${AZURE_RESOURCE_GROUP}" \
         --location "${AZURE_REGION}"
 
+    az extension add --name aks-preview || true
+    az extension update --name aks-preview || true
+
     az aks create \
         --resource-group "${AZURE_RESOURCE_GROUP}" \
         --node-resource-group "${AKS_RG}" \
@@ -22,8 +25,6 @@ function deploy_aks() {
 }
 
 function add_nodepool() {
-    az extension add --name aks-preview || true
-    az extension update --name aks-preview || true
     az feature register --namespace 'Microsoft.ContainerService' --name 'GPUDedicatedVHDPreview' || true
 
     # Wait until the output of the following command is "Registered"
