@@ -30,8 +30,8 @@ source .env
 Once inside the machine, first clone this repository again:
 
 ```bash
-git clone https://github.com/surajssd/llama-k8s/
-cd llama-k8s
+git clone https://github.com/surajssd/llm-k8s/
+cd llm-k8s
 ```
 
 Now let's ensure this machine is ready to start a single node Kubernetes cluster, so run the following commands:

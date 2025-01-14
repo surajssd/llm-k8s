@@ -1,6 +1,6 @@
-# Llama on Kubernetes
+# LLMs on Kubernetes
 
-This has instructions to run Llama on Kubernetes on Azure.
+This has instructions to run LLMs on Kubernetes on Azure.
 
 ## Deploy Infra: Option 1: Using AKS
 
