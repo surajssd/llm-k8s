@@ -1,0 +1,57 @@
+# Microsoft Phi-4
+
+## Deploy Infra: Using AKS
+
+Make necesary changes to the `.env` file as you see fit:
+
+```bash
+source .env
+export VM_SIZE="Standard_NC24ads_A100_v4"
+export GPU_NODE_COUNT=1
+```
+
+Now run the following command to deploy AKS:
+
+```bash
+./scripts/deploy-aks.sh
+```
+
+Now run this script to install NVIDIA drivers on Kubernetes:
+
+```bash
+./scripts/install-nvidia-drivers-on-k8s.sh
+```
+
+## Deploy LLM
+
+### Deploy the model
+
+Deploy Kubernetes configs to run the model:
+
+```bash
+kubectl apply -f configs/phi-4/k8s
+```
+
+### Access the model
+
+Create a port-forward so that you can access the model locally:
+
+```bash
+kubectl port-forward svc/phi-4 8000
+```
+
+Now run this sample query to check if it is working fine:
+
+```bash
+curl -X POST "http://localhost:8000/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  --data '{
+  "model": "microsoft/phi-4",
+  "messages": [
+   {
+    "role": "user",
+    "content": "Explain the origin of Llama the animal?"
+   }
+  ]
+ }' | jq
+```
