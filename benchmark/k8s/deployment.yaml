@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust
+  namespace: locust
+  labels:
+    app: locust
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locust
+  template:
+    metadata:
+      labels:
+        app: locust
+    spec:
+      containers:
+      - name: locust
+        image: locustio/locust:2.32.9
+        args:
+        - "-f"
+        - "/mnt/locust/locustfile.py"
+        ports:
+        - containerPort: 8089
+        env:
+        - name: MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: locust-config
+              key: MODEL_NAME
+        volumeMounts:
+        - name: locust-config
+          mountPath: /mnt/locust
+      volumes:
+      - name: locust-config
+        configMap:
+          name: locust-config
+          items:
+          - key: locustfile.py
+            path: locustfile.py
