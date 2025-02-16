@@ -1,2 +1,5 @@
 # Ignore .ipynb_checkpoints directory in any sub-path
 **/*.ipynb_checkpoints/
+
+# Ignore the kube prometheus
+kube-prometheus*

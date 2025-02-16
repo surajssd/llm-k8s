@@ -64,6 +64,25 @@ function download_aks_credentials() {
         --overwrite-existing
 }
 
+function install_kube_prometheus() {
+    [ -f kube-prometheus.zip ] || curl -o kube-prometheus.zip -L https://github.com/prometheus-operator/kube-prometheus/archive/main.zip
+    [ -d kube-prometheus-main ] || unzip kube-prometheus.zip
+
+    pushd kube-prometheus-main
+    # Create the namespace and CRDs, and then wait for them to be available before creating the remaining resources
+    kubectl create -f manifests/setup || true
+
+    # Wait until the "servicemonitors" CRD is created. The message "No resources found" means success in this context.
+    until kubectl get servicemonitors --all-namespaces; do
+        date
+        sleep 1
+        echo ""
+    done
+
+    kubectl create -f manifests/ || true
+    popd
+}
+
 function install_gpu_operator() {
     kubectl create ns gpu-operator || true
     kubectl label --overwrite ns gpu-operator pod-security.kubernetes.io/enforce=privileged
@@ -99,6 +118,9 @@ add_nodepool)
 download_aks_credentials)
     download_aks_credentials
     ;;
+install_kube_prometheus)
+    install_kube_prometheus
+    ;;
 install_gpu_operator)
     install_gpu_operator
     ;;
@@ -106,10 +128,15 @@ all)
     deploy_aks
     add_nodepool
     download_aks_credentials
+    install_kube_prometheus
+
+    # Install prometheus stack before installing GPU operator, as GPU operator
+    # also installs service monitors CR and those are only available after
+    # prometheus stack is installed.
     install_gpu_operator
     ;;
 # Show help when using help or -h or --help
 help | -h | --help)
-    echo "Usage: $0 [deploy_aks|add_nodepool|download_aks_credentials|install_gpu_operator|all|help]"
+    echo "Usage: $0 [deploy_aks|add_nodepool|download_aks_credentials|install_kube_prometheus|install_gpu_operator|all|help]"
     ;;
 esac
