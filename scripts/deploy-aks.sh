@@ -64,6 +64,30 @@ function download_aks_credentials() {
         --overwrite-existing
 }
 
+function install_gpu_operator() {
+    kubectl create ns gpu-operator || true
+    kubectl label --overwrite ns gpu-operator pod-security.kubernetes.io/enforce=privileged
+
+    helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+    helm repo update
+
+    helm upgrade -i \
+        --wait \
+        -n gpu-operator \
+        --create-namespace \
+        gpu-operator \
+        nvidia/gpu-operator \
+        --set dcgmExporter.serviceMonitor.enabled="true"
+
+    # Wait until the output of the command "cat foo" is empty
+    while [ ! "$(kubectl get pods -n gpu-operator | grep Completed)" ]; do
+        echo "Waiting for pods to be ready..."
+        sleep 5
+    done
+
+    kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, "nvidia.com/gpu": .status.allocatable["nvidia.com/gpu"]}'
+}
+
 PARAM="${1:-all}"
 case $PARAM in
 deploy_aks)
@@ -75,13 +99,17 @@ add_nodepool)
 download_aks_credentials)
     download_aks_credentials
     ;;
+install_gpu_operator)
+    install_gpu_operator
+    ;;
 all)
     deploy_aks
     add_nodepool
     download_aks_credentials
+    install_gpu_operator
     ;;
 # Show help when using help or -h or --help
 help | -h | --help)
-    echo "Usage: $0 [deploy_aks|add_nodepool|download_aks_credentials|all|help]"
+    echo "Usage: $0 [deploy_aks|add_nodepool|download_aks_credentials|install_gpu_operator|all|help]"
     ;;
 esac
