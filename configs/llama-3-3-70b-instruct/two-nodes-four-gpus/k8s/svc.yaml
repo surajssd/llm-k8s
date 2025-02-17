@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: llama-3-3-70b-instruct-leader
   namespace: default
+  labels:
+    model: llama-3-3-70b-instruct
 spec:
   ports:
     - name: http

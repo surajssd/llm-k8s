@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    model: llama-3-3-70b-instruct
+  name: llama-3-3-70b-instruct
+  namespace: default
+spec:
+  endpoints:
+  - path: /metrics
+    port: http
+  selector:
+    matchLabels:
+      model: llama-3-3-70b-instruct
