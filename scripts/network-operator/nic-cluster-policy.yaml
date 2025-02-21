@@ -1,0 +1,96 @@
+# Try to match the versions from: https://github.com/Mellanox/network-operator/blob/master/example/crs/mellanox.com_v1alpha1_nicclusterpolicy_cr-full.yaml
+apiVersion: mellanox.com/v1alpha1
+kind: NicClusterPolicy
+metadata:
+  name: nic-cluster-policy
+spec:
+  nvIpam:
+    enableWebhook: false
+    repository: ghcr.io/mellanox
+    image: nvidia-k8s-ipam
+    # Latest tag: https://github.com/mellanox/nvidia-k8s-ipam/pkgs/container/nvidia-k8s-ipam
+    version: v0.2.0
+
+  ofedDriver:
+    forcePrecompiled: false
+    repository: nvcr.io/nvidia/mellanox
+    image: doca-driver
+    # Latest tag: https://catalog.ngc.nvidia.com/orgs/nvidia/teams/mellanox/containers/doca-driver/tags
+    # When this is deployed a suffix is added in the format "-<os><os version>-<cpu arch>" for e.g.: "-ubuntu22.04-amd64".
+    version: 24.10-0.7.0.0-0
+
+    upgradePolicy:
+      autoUpgrade: true
+      drain:
+        deleteEmptyDir: true
+        enable: true
+        force: true
+        timeoutSeconds: 300
+      maxParallelUpgrades: 1
+    startupProbe:
+      initialDelaySeconds: 10
+      periodSeconds: 20
+    livenessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 30
+    readinessProbe:
+      initialDelaySeconds: 10
+      periodSeconds: 30
+
+  rdmaSharedDevicePlugin:
+    repository: ghcr.io/mellanox
+    image: k8s-rdma-shared-dev-plugin
+    # Latest tag: https://github.com/mellanox/k8s-rdma-shared-dev-plugin/pkgs/container/k8s-rdma-shared-dev-plugin
+    version: v1.5.2
+    useCdi: true
+
+    # The config below directly propagates to k8s-rdma-shared-device-plugin configuration.
+    # Replace 'devices' with your (RDMA capable) netdevice name.
+    config: |
+      {
+        "configList": [
+          {
+            "resourceName": "rdma_shared_device_a",
+            "rdmaHcaMax": 63,
+            "selectors": {
+              "vendors": ["15b3"]
+            }
+          }
+        ]
+      }
+
+  secondaryNetwork:
+    cniPlugins:
+      repository: ghcr.io/k8snetworkplumbingwg
+      image: plugins
+      # Latest tag: https://github.com/k8snetworkplumbingwg/plugins/pkgs/container/plugins
+      version: v1.5.0
+
+    multus:
+      repository: ghcr.io/k8snetworkplumbingwg
+      image: multus-cni
+      # Latest tag: https://github.com/k8snetworkplumbingwg/plugins/pkgs/container/multus-cni
+      version: v4.1.0
+
+    ipamPlugin:
+      repository: ghcr.io/k8snetworkplumbingwg
+      image: whereabouts
+      # Latest tag: https://github.com/k8snetworkplumbingwg/whereabouts/pkgs/container/whereabouts
+      version: v0.7.0
+
+    ipoib:
+      repository: ghcr.io/mellanox
+      image: ipoib-cni
+      # Latest tag: https://github.com/mellanox/ipoib-cni/pkgs/container/ipoib-cni
+      version: v1.2.1
+
+  # This is needed so that you don't schedule pods on the non-infiniband machines.
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        # This node label is added by NFD.
+        - key: feature.node.kubernetes.io/pci-15b3.present
+          operator: In
+          values:
+          - "true"

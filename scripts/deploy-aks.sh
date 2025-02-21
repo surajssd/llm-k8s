@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
 function deploy_aks() {
     az group create \
         --name "${AZURE_RESOURCE_GROUP}" \
@@ -107,6 +109,57 @@ function install_gpu_operator() {
     kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, "nvidia.com/gpu": .status.allocatable["nvidia.com/gpu"]}'
 }
 
+function install_network_operator() {
+    helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+    helm repo update
+
+    helm upgrade -i \
+        --wait \
+        --create-namespace \
+        -n network-operator \
+        network-operator \
+        nvidia/network-operator \
+        --set nfd.deployNodeFeatureRules=false
+
+    kubectl apply -f ${SCRIPT_DIR}/network-operator/nfd-rule.yaml
+    kubectl apply -f ${SCRIPT_DIR}/network-operator/nic-cluster-policy.yaml
+
+    # Wait for the mofed pods to be ready
+    NET_OP_NS="network-operator"
+    MOFED_LABEL="nvidia.com/ofed-driver"
+
+    echo "Waiting for all mofed pods in namespace '${NET_OP_NS}' are ready (this may take 10 mins)..."
+    while true; do
+        MOFED_PODS_IN_READY_STATE="$(kubectl get pods \
+            -n "${NET_OP_NS}" \
+            -l "${MOFED_LABEL}" \
+            -o jsonpath='{range .items[*]}{.status.containerStatuses[*].ready}{" "}{end}' | tr ' ' '\n' | grep -c true || true)"
+        MOFED_PODS_IN_READY_STATE="${MOFED_PODS_IN_READY_STATE:-0}"
+
+        MOFED_PODS_COUNT_NEEDED="$(kubectl get pods \
+            -n "${NET_OP_NS}" \
+            -l "${MOFED_LABEL}" \
+            --no-headers | wc -l)"
+
+        if [[ "${MOFED_PODS_IN_READY_STATE}" -eq "${MOFED_PODS_COUNT_NEEDED}" ]]; then
+            break
+        fi
+
+        echo "Not all mofed pods are ready yet... retrying in 5s (this may take 10 mins)"
+        kubectl get pods -n "$NET_OP_NS" -l "${MOFED_LABEL}" -o wide
+        sleep 5
+    done
+
+    NET_OP_RDMA_DS="rdma-shared-dp-ds"
+    echo "Waiting for DaemonSet '${NET_OP_RDMA_DS}' in namespace '${NET_OP_NS}' to be fully ready..."
+    kubectl -n ${NET_OP_NS} \
+        wait --timeout=300s \
+        --for=jsonpath='{.status.numberReady}'="$(kubectl get daemonset $NET_OP_RDMA_DS -n $NET_OP_NS -o jsonpath='{.status.desiredNumberScheduled}')" \
+        "daemonset/${NET_OP_RDMA_DS}"
+
+    kubectl apply -f ${SCRIPT_DIR}/network-operator/ipoib-network.yaml
+}
+
 PARAM="${1:-all}"
 case $PARAM in
 deploy_aks)
@@ -124,6 +177,9 @@ install_kube_prometheus)
 install_gpu_operator)
     install_gpu_operator
     ;;
+install_network_operator)
+    install_network_operator
+    ;;
 all)
     deploy_aks
     add_nodepool
@@ -137,6 +193,6 @@ all)
     ;;
 # Show help when using help or -h or --help
 help | -h | --help)
-    echo "Usage: $0 [deploy_aks|add_nodepool|download_aks_credentials|install_kube_prometheus|install_gpu_operator|all|help]"
+    echo "Usage: $0 [deploy_aks|add_nodepool|download_aks_credentials|install_kube_prometheus|install_gpu_operator|install_network_operator|all|help]"
     ;;
 esac
