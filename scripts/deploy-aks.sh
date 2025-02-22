@@ -142,6 +142,7 @@ function install_network_operator() {
             --no-headers | wc -l)"
 
         if [[ "${MOFED_PODS_IN_READY_STATE}" -eq "${MOFED_PODS_COUNT_NEEDED}" ]]; then
+            sleep 15
             break
         fi
 
@@ -154,7 +155,9 @@ function install_network_operator() {
     echo "Waiting for DaemonSet '${NET_OP_RDMA_DS}' in namespace '${NET_OP_NS}' to be fully ready..."
     kubectl -n ${NET_OP_NS} \
         wait --timeout=300s \
-        --for=jsonpath='{.status.numberReady}'="$(kubectl get daemonset $NET_OP_RDMA_DS -n $NET_OP_NS -o jsonpath='{.status.desiredNumberScheduled}')" \
+        --for=jsonpath='{.status.numberReady}'="$(kubectl -n ${NET_OP_NS} \
+            get daemonset $NET_OP_RDMA_DS \
+            -o jsonpath='{.status.desiredNumberScheduled}')" \
         "daemonset/${NET_OP_RDMA_DS}"
 
     kubectl apply -f ${SCRIPT_DIR}/network-operator/ipoib-network.yaml
