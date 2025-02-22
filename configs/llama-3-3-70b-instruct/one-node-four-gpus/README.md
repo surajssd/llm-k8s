@@ -16,12 +16,6 @@ Now run the following command to deploy AKS:
 ./scripts/deploy-aks.sh
 ```
 
-Now run this script to install NVIDIA drivers on Kubernetes:
-
-```bash
-./scripts/install-nvidia-drivers-on-k8s.sh
-```
-
 ## Deploy LLM
 
 ### Permission to use the model
