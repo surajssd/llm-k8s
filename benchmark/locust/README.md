@@ -39,6 +39,9 @@ To start benchmarking select the number of users and ramp up for users. And ente
 
 To update the locustfile, update the [locustfile.py](locustfile.py) and then update the configmap:
 
+> [!NOTE]
+> You can also modify the model name in the configmap.
+
 ```bash
 kubectl -n locust create configmap locust-config \
     --dry-run=client -o yaml \
