@@ -106,6 +106,8 @@ function install_gpu_operator() {
         sleep 5
     done
 
+    echo 'GPUs on nodes:'
+    echo '$ kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, "nvidia.com/gpu": .status.allocatable["nvidia.com/gpu"]}''
     kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, "nvidia.com/gpu": .status.allocatable["nvidia.com/gpu"]}'
 }
 
