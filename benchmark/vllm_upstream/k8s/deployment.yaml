@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: benchmark-runner
+  namespace: vllm-benchmark
+  labels:
+    app: benchmark-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: benchmark-runner
+  template:
+    metadata:
+      labels:
+        app: benchmark-runner
+    spec:
+      containers:
+      - name: benchmark
+        image: vllm/vllm-openai:latest
+        command: ["/bin/bash"]
+        args:
+        - -c
+        - echo -n "Run the following command:\nbash /root/benchmark/run_vllm_upstream_benchmark.sh\nSleeping now..." && sleep infinity
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token-secret
+              key: token
+        - name: VLLM_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: benchmark-runner
+              key: VLLM_VERSION
+        - name: TEST_SERVER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: benchmark-runner
+              key: TEST_SERVER_URL
+        - name: MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: benchmark-runner
+              key: MODEL_NAME
+        volumeMounts:
+        - name: benchmark-runner
+          mountPath: /root/benchmark/
+      volumes:
+      - name: benchmark-runner
+        configMap:
+          name: benchmark-runner
+          items:
+          - key: run_vllm_upstream_benchmark.sh
+            path: run_vllm_upstream_benchmark.sh
