@@ -3,3 +3,6 @@
 
 # Ignore the kube prometheus
 kube-prometheus*
+
+# Ignore file ShareGPT_V3_unfiltered_cleaned_split.json in any directory
+**/ShareGPT_V3_unfiltered_cleaned_split.json
