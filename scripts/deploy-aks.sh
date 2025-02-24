@@ -83,6 +83,9 @@ function install_kube_prometheus() {
 
     kubectl create -f manifests/ || true
     popd
+
+    kubectl apply -f ${SCRIPT_DIR}/monitoring/rbac.yaml
+
 }
 
 function install_gpu_operator() {
@@ -106,9 +109,10 @@ function install_gpu_operator() {
         sleep 5
     done
 
-    echo 'GPUs on nodes:'
-    echo '$ kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, "nvidia.com/gpu": .status.allocatable["nvidia.com/gpu"]}''
-    kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, "nvidia.com/gpu": .status.allocatable["nvidia.com/gpu"]}'
+    echo -e '\nGPUs on nodes:\n'
+    gpu_on_nodes_cmd="kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, \"nvidia.com/gpu\": .status.allocatable[\"nvidia.com/gpu\"]}'"
+    echo "$ ${gpu_on_nodes_cmd}"
+    eval "${gpu_on_nodes_cmd}"
 }
 
 function install_network_operator() {
