@@ -9,6 +9,20 @@ if [ "${DEBUG:-false}" = "true" ]; then
   set -x
 fi
 
+# Check if the required env vars are set
+: "${VLLM_CODE:?Environment variable VLLM_CODE not set}"
+: "${HF_TOKEN:?Environment variable HF_TOKEN not set}"
+: "${MODEL_NAME:?Environment variable MODEL_NAME not set}"
+: "${TENSOR_PARALLEL_SIZE:?Environment variable TENSOR_PARALLEL_SIZE not set}"
+: "${PIPELINE_PARALLEL_SIZE:?Environment variable PIPELINE_PARALLEL_SIZE not set}"
+: "${TEST_SERVER_URL:?Environment variable TEST_SERVER_URL not set}"
+: "${GPU_VM_SKU:?Environment variable GPU_VM_SKU not set}"
+
+VLLM_BENCHMARK_CODE="${VLLM_CODE}/benchmarks"
+BUILD_KITE_ROOT="${VLLM_CODE}/.buildkite"
+RESULTS_FOLDER="${BUILD_KITE_ROOT}/results/"
+mkdir -p $RESULTS_FOLDER
+
 function check_hf_token() {
   # check if HF_TOKEN is available and valid
   if [[ -z "$HF_TOKEN" ]]; then
@@ -25,6 +39,8 @@ function check_hf_token() {
 function run_serving_tests() {
   # Generate the test name and replace the '/' with '-'
   test_name=$(echo "serving_${MODEL_NAME}_tp${TENSOR_PARALLEL_SIZE}_pp${PIPELINE_PARALLEL_SIZE}_sharegpt" | tr '/' '-')
+
+  # Request rates to test
   qps_list=(01 04 16 inf)
   echo "Running over qps list $qps_list"
 
@@ -66,20 +82,27 @@ function run_serving_tests() {
 
 }
 
-VLLM_BENCHMARK_CODE="${VLLM_CODE}/benchmarks"
-BUILD_KITE_ROOT="${VLLM_CODE}/.buildkite"
+function collate_results() {
+  pushd "${BUILD_KITE_ROOT}"
+  python3 $BUILD_KITE_ROOT/nightly-benchmarks/scripts/convert-results-json-to-markdown.py
+  popd
 
-# prepare for benchmarking
-check_hf_token
+  cat "${RESULTS_FOLDER}/benchmark_results.md"
 
-RESULTS_FOLDER="${BUILD_KITE_ROOT}/results/"
-mkdir -p $RESULTS_FOLDER
+  cp -r "${RESULTS_FOLDER}" "results-${test_name}"
+  tar czf "/root/results-${test_name}.tar.gz" "results-${test_name}"
+  echo "Results are saved in /root/results-${test_name}.tar.gz"
+}
 
-# benchmarking
-run_serving_tests
+function main() {
+  # prepare for benchmarking
+  check_hf_token
 
-pushd "${BUILD_KITE_ROOT}"
-python3 $BUILD_KITE_ROOT/nightly-benchmarks/scripts/convert-results-json-to-markdown.py
-popd
+  # run benchmarking tests
+  run_serving_tests
 
-cat "${RESULTS_FOLDER}/benchmark_results.md"
+  # collate results
+  collate_results
+}
+
+main

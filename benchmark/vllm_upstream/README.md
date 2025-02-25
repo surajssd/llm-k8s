@@ -48,17 +48,33 @@ kubectl -n vllm-benchmark \
 
 ## Run Benchmarks
 
-Start the benchmark tests:
+Find the VLLM benchmark pod:
 
 ```bash
 POD_NAME=$(kubectl -n vllm-benchmark \
     get pods \
     -l app=benchmark-runner \
+    --field-selector=status.phase=Running \
     -o jsonpath='{.items[].metadata.name}')
+```
 
+Run the benchmark tests:
+
+```bash
 kubectl -n vllm-benchmark \
     exec -it $POD_NAME \
     -- bash /root/benchmark/run_vllm_upstream_benchmark.sh
+```
+
+Get the benchmark results:
+
+```bash
+RESULTS_FILE=$(kubectl -n vllm-benchmark \
+    exec -it $POD_NAME \
+    -- bash -c "ls /root/results*.tar.gz" | tr -d '\r')
+
+kubectl -n vllm-benchmark \
+    cp "${POD_NAME}:${RESULTS_FILE}" "./$(basename ${RESULTS_FILE})"
 ```
 
 ## Update Configmap
