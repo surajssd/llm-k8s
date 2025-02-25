@@ -12,7 +12,6 @@ Now create the configmap with [run_vllm_upstream_benchmark.sh](run_vllm_upstream
 
 ```bash
 kubectl -n vllm-benchmark create configmap benchmark-runner \
-    --from-file=benchmark/vllm_upstream/run_vllm_upstream_benchmark.sh \
     --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct-leader.default:8000" \
     --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct" \
     --from-literal=TENSOR_PARALLEL_SIZE=2 \
@@ -63,7 +62,7 @@ Run the benchmark tests:
 ```bash
 kubectl -n vllm-benchmark \
     exec -it $POD_NAME \
-    -- bash /root/benchmark/run_vllm_upstream_benchmark.sh
+    -- bash /root/scripts/run_vllm_upstream_benchmark.sh
 ```
 
 Get the benchmark results:
@@ -83,7 +82,6 @@ To update any of the values from before run the following command:
 
 ```bash
 kubectl -n vllm-benchmark create configmap benchmark-runner \
-    --from-file=benchmark/vllm_upstream/run_vllm_upstream_benchmark.sh \
     --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct-leader.default:8000" \
     --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct" \
     --from-literal=TENSOR_PARALLEL_SIZE=2 \

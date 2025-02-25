@@ -18,6 +18,7 @@ spec:
       containers:
       - name: benchmark
         image: ghcr.io/surajssd/llm-k8s/vllm-benchmark:0.7.3
+        imagePullPolicy: Always
         command: ["/bin/bash"]
         args:
         - -c
@@ -53,13 +54,3 @@ spec:
             configMapKeyRef:
               name: benchmark-runner
               key: GPU_VM_SKU
-        volumeMounts:
-        - name: benchmark-runner
-          mountPath: /root/benchmark/
-      volumes:
-      - name: benchmark-runner
-        configMap:
-          name: benchmark-runner
-          items:
-          - key: run_vllm_upstream_benchmark.sh
-            path: run_vllm_upstream_benchmark.sh
