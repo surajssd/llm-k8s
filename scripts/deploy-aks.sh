@@ -169,6 +169,13 @@ function install_network_operator() {
     kubectl apply -f ${SCRIPT_DIR}/network-operator/ipoib-network.yaml
 }
 
+function install_lws_controller() {
+    # Find the latest version here: https://github.com/kubernetes-sigs/lws/releases
+    VERSION=v0.5.1
+    kubectl apply --server-side -f https://github.com/kubernetes-sigs/lws/releases/download/$VERSION/manifests.yaml
+
+}
+
 PARAM="${1:-all}"
 case $PARAM in
 deploy_aks)
@@ -189,11 +196,15 @@ install_gpu_operator)
 install_network_operator)
     install_network_operator
     ;;
+install_lws_controller)
+    install_lws_controller
+    ;;
 all)
     deploy_aks
-    add_nodepool
     download_aks_credentials
+    add_nodepool
     install_kube_prometheus
+    install_lws_controller
 
     # Install prometheus stack before installing GPU operator, as GPU operator
     # also installs service monitors CR and those are only available after
@@ -202,6 +213,6 @@ all)
     ;;
 # Show help when using help or -h or --help
 help | -h | --help)
-    echo "Usage: $0 [deploy_aks|add_nodepool|download_aks_credentials|install_kube_prometheus|install_gpu_operator|install_network_operator|all|help]"
+    echo "Usage: $0 [deploy_aks|add_nodepool|download_aks_credentials|install_kube_prometheus|install_gpu_operator|install_network_operator|install_lws_controller|all|help]"
     ;;
 esac
