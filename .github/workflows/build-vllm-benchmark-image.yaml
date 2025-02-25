@@ -3,7 +3,7 @@ name: Build & Push VLLM Benchmark Container Image
 on:
   push:
     paths:
-      - benchmark/vllm_upstream/k8s/Dockerfile
+      - benchmark/vllm_upstream/docker/**
   workflow_dispatch:
 
 jobs:
@@ -39,8 +39,8 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
-        context: benchmark/vllm_upstream/k8s
-        file: benchmark/vllm_upstream/k8s/Dockerfile
+        context: benchmark/vllm_upstream/docker
+        file: benchmark/vllm_upstream/docker/Dockerfile
         push: true
         tags: ${{ steps.tag.outputs.tags }}
         labels: ${{ steps.tag.outputs.labels }}

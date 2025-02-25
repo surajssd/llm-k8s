@@ -84,7 +84,7 @@ function run_serving_tests() {
 
 function collate_results() {
   pushd "${BUILD_KITE_ROOT}"
-  python3 $BUILD_KITE_ROOT/nightly-benchmarks/scripts/convert-results-json-to-markdown.py
+  python3 /root/scripts/convert-results-json-to-markdown.py
   popd
 
   cat "${RESULTS_FOLDER}/benchmark_results.md"

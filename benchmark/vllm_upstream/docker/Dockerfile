@@ -18,6 +18,8 @@ RUN TMP_DIR=$(mktemp -d) && \
     cd / && \
     rm -rf "${TMP_DIR}"
 
+COPY *  /root/scripts/
+
 # Install pip & other dependencies
 RUN pip install tabulate pandas datasets && \
     apt-get update && apt-get -y install jq
