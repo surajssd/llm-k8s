@@ -3,7 +3,7 @@ name: Build & Push LWS VLLM Container Image
 on:
   push:
     paths:
-      - configs/llama-3-3-70b-instruct/two-nodes-four-gpus/docker/
+      - configs/llama-3-3-70b-instruct/two-nodes-four-gpus/docker/**
   workflow_dispatch:
 
 jobs:
