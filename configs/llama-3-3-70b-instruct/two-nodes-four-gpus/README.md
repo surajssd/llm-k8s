@@ -18,16 +18,6 @@ Now run the following command to deploy AKS:
 ./scripts/deploy-aks.sh
 ```
 
-Install the LeaderWorkerSet (LWS) controller:
-
-> [!NOTE]
-> You can find the latest version of LWS [here](https://github.com/kubernetes-sigs/lws/releases).
-
-```bash
-VERSION=v0.5.1
-kubectl apply --server-side -f https://github.com/kubernetes-sigs/lws/releases/download/$VERSION/manifests.yaml
-```
-
 ## Deploy LLM
 
 ### Permission to use the model
