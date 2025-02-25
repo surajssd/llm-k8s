@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Inspired by:
+# https://github.com/vllm-project/vllm/blob/1f0ae3ed0aa9af7f5e88e56f5c960cc919c2f090/.buildkite/nightly-benchmarks/scripts/run-performance-benchmarks.sh#L374
 
 set -euo pipefail
 
@@ -6,15 +8,6 @@ set -euo pipefail
 if [ "${DEBUG:-false}" = "true" ]; then
   set -x
 fi
-
-function ensure_sharegpt_downloaded() {
-  FILE=$(basename $SHARE_GPT_FILE)
-  if [ ! -f "$SHARE_GPT_FILE" ]; then
-    curl -L -o $SHARE_GPT_FILE https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/resolve/main/$FILE
-  else
-    echo "$FILE already exists."
-  fi
-}
 
 function check_hf_token() {
   # check if HF_TOKEN is available and valid
@@ -29,30 +22,10 @@ function check_hf_token() {
   fi
 }
 
-function download_benchmark_src() {
-  if [ -d "$VLLM_CODE" ]; then
-    echo "VLLM code already exists."
-    return
-  fi
-
-  TMP_DIR=$(mktemp -d)
-  pushd $TMP_DIR
-  curl -LO "https://github.com/vllm-project/vllm/releases/download/v${VLLM_VERSION}/vllm-${VLLM_VERSION}.tar.gz"
-  tar -xvzf "vllm-${VLLM_VERSION}.tar.gz"
-  rm "vllm-${VLLM_VERSION}.tar.gz"
-  mv vllm-* $VLLM_CODE
-  popd
-  rm -rf $TMP_DIR
-}
-
-function install_dependencies() {
-  (which jq) || (apt-get update && apt-get -y install jq)
-  pip install tabulate pandas datasets
-}
-
 function run_serving_tests() {
-  test_name="serving_llama70B_tp2_pp2_sharegpt"
-  qps_list=(1 4 16 inf)
+  # Generate the test name and replace the '/' with '-'
+  test_name=$(echo "serving_${MODEL_NAME}_tp${TENSOR_PARALLEL_SIZE}_pp${PIPELINE_PARALLEL_SIZE}_sharegpt" | tr '/' '-')
+  qps_list=(01 04 16 inf)
   echo "Running over qps list $qps_list"
 
   # iterate over different QPS
@@ -69,7 +42,7 @@ function run_serving_tests() {
         --model=${MODEL_NAME} \
         --backend=vllm \
         --dataset-name=sharegpt \
-        --dataset-path=${SHARE_GPT_FILE} \
+        --dataset-path=/root/sharegpt.json \
         --num-prompts=200"
 
     echo "Running test case $test_name with qps $qps"
@@ -79,10 +52,13 @@ function run_serving_tests() {
     popd
 
     # record the benchmarking commands
+    gpu_type="${GPU_VM_SKU} x ${PIPELINE_PARALLEL_SIZE}"
     jq_output=$(jq -n \
       --arg client "$client_command" \
+      --arg gpu_type "$gpu_type" \
       '{
           client_command: $client,
+          gpu_type: $gpu_type
         }')
     echo "$jq_output" >"$RESULTS_FOLDER/${new_test_name}.commands"
 
@@ -90,21 +66,20 @@ function run_serving_tests() {
 
 }
 
-VLLM_CODE="/root/vllm"
 VLLM_BENCHMARK_CODE="${VLLM_CODE}/benchmarks"
-QUICK_BENCHMARK_ROOT="${VLLM_CODE}/.buildkite/nightly-benchmarks/"
-SHARE_GPT_FILE="/root/ShareGPT_V3_unfiltered_cleaned_split.json"
-
-RESULTS_FOLDER="/root/results/"
-mkdir -p $RESULTS_FOLDER
+BUILD_KITE_ROOT="${VLLM_CODE}/.buildkite"
 
 # prepare for benchmarking
 check_hf_token
-ensure_sharegpt_downloaded
-download_benchmark_src
-install_dependencies
+
+RESULTS_FOLDER="${BUILD_KITE_ROOT}/results/"
+mkdir -p $RESULTS_FOLDER
 
 # benchmarking
 run_serving_tests
 
-python3 $QUICK_BENCHMARK_ROOT/scripts/convert-results-json-to-markdown.py
+pushd "${BUILD_KITE_ROOT}"
+python3 $BUILD_KITE_ROOT/nightly-benchmarks/scripts/convert-results-json-to-markdown.py
+popd
+
+cat "${RESULTS_FOLDER}/benchmark_results.md"

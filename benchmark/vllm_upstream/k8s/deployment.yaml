@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: benchmark
-        image: vllm/vllm-openai:latest
+        image: ghcr.io/surajssd/llm-k8s/vllm-benchmark:0.7.3
         command: ["/bin/bash"]
         args:
         - -c
@@ -28,11 +28,6 @@ spec:
             secretKeyRef:
               name: hf-token-secret
               key: token
-        - name: VLLM_VERSION
-          valueFrom:
-            configMapKeyRef:
-              name: benchmark-runner
-              key: VLLM_VERSION
         - name: TEST_SERVER_URL
           valueFrom:
             configMapKeyRef:
@@ -43,6 +38,21 @@ spec:
             configMapKeyRef:
               name: benchmark-runner
               key: MODEL_NAME
+        - name: TENSOR_PARALLEL_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: benchmark-runner
+              key: TENSOR_PARALLEL_SIZE
+        - name: PIPELINE_PARALLEL_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: benchmark-runner
+              key: PIPELINE_PARALLEL_SIZE
+        - name: GPU_VM_SKU
+          valueFrom:
+            configMapKeyRef:
+              name: benchmark-runner
+              key: GPU_VM_SKU
         volumeMounts:
         - name: benchmark-runner
           mountPath: /root/benchmark/

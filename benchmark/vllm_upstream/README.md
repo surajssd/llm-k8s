@@ -12,10 +12,12 @@ Now create the configmap with [run_vllm_upstream_benchmark.sh](run_vllm_upstream
 
 ```bash
 kubectl -n vllm-benchmark create configmap benchmark-runner \
-    --from-file=run_vllm_upstream_benchmark.sh \
-    --from-literal=VLLM_VERSION="0.7.3" \
+    --from-file=benchmark/vllm_upstream/run_vllm_upstream_benchmark.sh \
     --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct-leader.default:8000" \
-    --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct"
+    --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct" \
+    --from-literal=TENSOR_PARALLEL_SIZE=2 \
+    --from-literal=PIPELINE_PARALLEL_SIZE="${GPU_NODE_COUNT}" \
+    --from-literal=GPU_VM_SKU="${VM_SIZE}"
 ```
 
 Let's create a Kubernetes secret with hugging token. First get the token by going [here](https://huggingface.co/settings/tokens). You only need a "Read" token. Copy and export the token as an environment variable:
@@ -33,7 +35,7 @@ kubectl -n vllm-benchmark create secret generic hf-token-secret --from-literal t
 Deploy the benchmark runner:
 
 ```bash
-kubectl apply -f k8s/
+kubectl apply -f benchmark/vllm_upstream/k8s/
 ```
 
 See if the pods are running by running the following command:
@@ -65,11 +67,13 @@ To update any of the values from before run the following command:
 
 ```bash
 kubectl -n vllm-benchmark create configmap benchmark-runner \
-    --dry-run=client -o yaml \
-    --from-file=run_vllm_upstream_benchmark.sh \
-    --from-literal=VLLM_VERSION="0.7.3" \
+    --from-file=benchmark/vllm_upstream/run_vllm_upstream_benchmark.sh \
     --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct-leader.default:8000" \
     --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct" \
+    --from-literal=TENSOR_PARALLEL_SIZE=2 \
+    --from-literal=PIPELINE_PARALLEL_SIZE="${GPU_NODE_COUNT}" \
+    --from-literal=GPU_VM_SKU="${VM_SIZE}" \
+    --dry-run=client -o yaml \
     | kubectl apply -f -
 ```
 
@@ -77,4 +81,12 @@ Restart the benchmark runner:
 
 ```bash
 kubectl -n vllm-benchmark rollout restart deployment benchmark-runner
+```
+
+See if the pods are running by running the following command:
+
+```bash
+kubectl -n vllm-benchmark \
+    get pods \
+    -l app=benchmark-runner
 ```
