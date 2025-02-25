@@ -15,11 +15,11 @@ spec:
       spec:
         containers:
         - name: llama-3-3-70b-instruct-leader
-          image: quay.io/surajd/lws-vllm:bcbcc5f
+          image: quay.io/surajd/lws-vllm:86c206f
           command:
           - sh
           - -c
-          - "/vllm-workspace/ray_init.sh leader --ray_cluster_size=$(LWS_GROUP_SIZE);
+          - "/vllm-workspace/ray_init.sh leader --ray_cluster_size=$(LWS_GROUP_SIZE) --dashboard-host=0.0.0.0;
             python3 -m vllm.entrypoints.openai.api_server
             --port 8000
             --model meta-llama/Llama-3.3-70B-Instruct
@@ -31,8 +31,18 @@ spec:
               secretKeyRef:
                 name: hf-token-secret
                 key: token
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 600
           ports:
+          # VLLM port
           - containerPort: 8000
+          # Ray dashboard port
+          - containerPort: 8265
           resources:
             limits:
               nvidia.com/gpu: "2"
@@ -53,10 +63,11 @@ spec:
       spec:
         containers:
         - name: llama-3-3-70b-instruct-worker
-          image: quay.io/surajd/lws-vllm:bcbcc5f
+          image: quay.io/surajd/lws-vllm:86c206f
           command:
           - sh
           - -c
+          # TODO: Figure out how this can be an infiniband IP?
           - "/vllm-workspace/ray_init.sh worker --ray_address=$(LWS_LEADER_ADDRESS)"
           env:
           - name: HUGGING_FACE_HUB_TOKEN
