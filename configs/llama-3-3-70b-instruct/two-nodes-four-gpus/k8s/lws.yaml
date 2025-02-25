@@ -15,11 +15,12 @@ spec:
       spec:
         containers:
         - name: llama-3-3-70b-instruct-leader
-          image: quay.io/surajd/lws-vllm:86c206f
+          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.7.3
+          imagePullPolicy: Always
           command:
           - sh
           - -c
-          - "/vllm-workspace/ray_init.sh leader --ray_cluster_size=$(LWS_GROUP_SIZE) --dashboard-host=0.0.0.0;
+          - "/vllm-workspace/ray_init.sh leader --ray_cluster_size=$(LWS_GROUP_SIZE) --dashboard-host=0.0.0.0 --metrics-export-port=8080;
             python3 -m vllm.entrypoints.openai.api_server
             --port 8000
             --model meta-llama/Llama-3.3-70B-Instruct
@@ -36,13 +37,15 @@ spec:
               path: /health
               port: 8000
             initialDelaySeconds: 60
-            periodSeconds: 10
-            timeoutSeconds: 600
+            periodSeconds: 15
+            timeoutSeconds: 720
           ports:
           # VLLM port
           - containerPort: 8000
           # Ray dashboard port
           - containerPort: 8265
+          # Ray metrics port
+          - containerPort: 8080
           resources:
             limits:
               nvidia.com/gpu: "2"
@@ -63,12 +66,13 @@ spec:
       spec:
         containers:
         - name: llama-3-3-70b-instruct-worker
-          image: quay.io/surajd/lws-vllm:86c206f
+          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.7.3
+          imagePullPolicy: Always
           command:
           - sh
           - -c
           # TODO: Figure out how this can be an infiniband IP?
-          - "/vllm-workspace/ray_init.sh worker --ray_address=$(LWS_LEADER_ADDRESS)"
+          - "/vllm-workspace/ray_init.sh worker --ray_address=$(LWS_LEADER_ADDRESS) --metrics-export-port=8080"
           env:
           - name: HUGGING_FACE_HUB_TOKEN
             valueFrom:
@@ -76,7 +80,10 @@ spec:
                 name: hf-token-secret
                 key: token
           ports:
+          # VLLM port
           - containerPort: 8000
+          # Ray metrics port
+          - containerPort: 8080
           resources:
             limits:
               nvidia.com/gpu: "2"

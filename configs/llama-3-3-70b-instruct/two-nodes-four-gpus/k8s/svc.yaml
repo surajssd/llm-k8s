@@ -5,12 +5,56 @@ metadata:
   namespace: default
   labels:
     model: llama-3-3-70b-instruct
+    role: leader
 spec:
   ports:
     - name: http
       port: 8000
       protocol: TCP
       targetPort: 8000
+    # This is just so that the servicemonitors can scrape the metrics
+    - name: ray-metrics
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    leaderworkerset.sigs.k8s.io/name: llama-3-3-70b-instruct
+    role: leader
+  type: ClusterIP
+---
+# This is just so that the servicemonitors can scrape the metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama-3-3-70b-instruct-worker
+  namespace: default
+  labels:
+    model: llama-3-3-70b-instruct
+    role: worker
+spec:
+  ports:
+  - name: ray-metrics
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    leaderworkerset.sigs.k8s.io/name: llama-3-3-70b-instruct
+    role: worker
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama-3-3-70b-ray-dashboard
+  namespace: default
+  labels:
+    model: ray-dashboard
+spec:
+  ports:
+    - name: ray-dashboard
+      port: 8265
+      protocol: TCP
+      targetPort: 8265
   selector:
     leaderworkerset.sigs.k8s.io/name: llama-3-3-70b-instruct
     role: leader
