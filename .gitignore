@@ -9,3 +9,6 @@ kube-prometheus*
 
 # Ignore the results directory in the benchmark/vllm_upstream directory
 benchmark/vllm_upstream/results/
+
+# Ignore the grafana dashboard files
+scripts/monitoring/dashboards/

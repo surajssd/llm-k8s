@@ -66,26 +66,53 @@ function download_aks_credentials() {
         --overwrite-existing
 }
 
-function install_kube_prometheus() {
-    [ -f kube-prometheus.zip ] || curl -o kube-prometheus.zip -L https://github.com/prometheus-operator/kube-prometheus/archive/main.zip
-    [ -d kube-prometheus-main ] || unzip kube-prometheus.zip
+function install_grafana_dashboards() {
+    DASHBOARD_DIR="${SCRIPT_DIR}/monitoring/dashboards"
+    mkdir -p "${DASHBOARD_DIR}"
+    pushd "${DASHBOARD_DIR}"
 
-    pushd kube-prometheus-main
-    # Create the namespace and CRDs, and then wait for them to be available before creating the remaining resources
-    kubectl create -f manifests/setup || true
+    # Download vLLM dashboard
+    [ -f vllm.json ] || curl -o vllm.json -L https://raw.githubusercontent.com/vllm-project/vllm/refs/heads/main/examples/online_serving/prometheus_grafana/grafana.json
 
-    # Wait until the "servicemonitors" CRD is created. The message "No resources found" means success in this context.
-    until kubectl get servicemonitors --all-namespaces; do
-        date
-        sleep 1
-        echo ""
+    # Download Ray dashboards
+    # More about the dashboards here:
+    # https://github.com/ray-project/kuberay/tree/master/config/grafana
+    # https://docs.ray.io/en/master/cluster/kubernetes/k8s-ecosystem/prometheus-grafana.html#kuberay-prometheus-grafana
+    [ -f data_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/data_grafana_dashboard.json
+    [ -f default_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/default_grafana_dashboard.json
+    [ -f serve_deployment_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/serve_deployment_grafana_dashboard.json
+    [ -f serve_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/serve_grafana_dashboard.json
+
+    # Nvidia dashboards
+    # https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard/
+    [ -f nvidia-dcgm-exporter-dashboard.json ] || curl -o nvidia-dcgm-exporter-dashboard.json -L https://grafana.com/api/dashboards/12239/revisions/2/download
+    # https://grafana.com/grafana/dashboards/15117-nvidia-dcgm-exporter/
+    [ -f nvidia-dcgm-exporter.json ] || curl -o nvidia-dcgm-exporter.json -L https://grafana.com/api/dashboards/15117/revisions/2/download
+
+    # Iterate over the files in the directory and print them
+    for file in $(ls); do
+        # Removes the suffix of .json from the file name, converts the _ to - and makes it lowercase
+        CM_NAME="$(echo "${file}" | sed 's/\.json//g' | tr '_' '-' | tr '[:upper:]' '[:lower:]')"
+        kubectl -n monitoring create cm --dry-run=client -o yaml "${CM_NAME}" --from-file "${file}" | kubectl apply -f -
+        kubectl -n monitoring label cm "${CM_NAME}" grafana_dashboard=1
     done
 
-    kubectl create -f manifests/ || true
     popd
+}
+
+function install_kube_prometheus() {
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    helm repo update
+    # TODO: Rename the release name: kube-prometheus
+    helm upgrade -i \
+        --wait \
+        -n monitoring \
+        --create-namespace \
+        kube-proemetheus \
+        prometheus-community/kube-prometheus-stack
 
     kubectl apply -f ${SCRIPT_DIR}/monitoring/rbac.yaml
-
+    install_grafana_dashboards
 }
 
 function install_gpu_operator() {
