@@ -122,13 +122,23 @@ function install_gpu_operator() {
     helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
     helm repo update
 
+    # See if NFD is already deployed. This means that the network operator was deployed before.
+    NFD_PODS_COUNT="$(kubectl get pods \
+        -A -l app.kubernetes.io/name=node-feature-discovery \
+        --no-headers | wc -l)"
+
+    HELM_CHART_FLAGS=""
+    if [[ "${NFD_PODS_COUNT}" -gt 0 ]]; then
+        HELM_CHART_FLAGS="--set nfd.enabled=false"
+    fi
+
     helm upgrade -i \
         --wait \
         -n gpu-operator \
         --create-namespace \
         gpu-operator \
         nvidia/gpu-operator \
-        --set dcgmExporter.serviceMonitor.enabled="true"
+        --set dcgmExporter.serviceMonitor.enabled="true" ${HELM_CHART_FLAGS}
 
     # Wait until the output of the command "cat foo" is empty
     while [ ! "$(kubectl get pods -n gpu-operator | grep Completed)" ]; do
