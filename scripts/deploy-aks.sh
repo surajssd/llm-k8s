@@ -171,6 +171,20 @@ function install_network_operator() {
     NET_OP_NS="network-operator"
     MOFED_LABEL="nvidia.com/ofed-driver"
 
+    # Wait until any MOFED pods show up.
+    while true; do
+        MOFED_PODS_COUNT="$(kubectl get pods \
+            -n "${NET_OP_NS}" \
+            -l "${MOFED_LABEL}" \
+            --no-headers | wc -l)"
+        if [[ "${MOFED_PODS_COUNT}" -gt 0 ]]; then
+            break
+        fi
+
+        echo "Waiting for mofed pods to show up..."
+        sleep 2
+    done
+
     echo "Waiting for all mofed pods in namespace '${NET_OP_NS}' are ready (this may take 10 mins)..."
     while true; do
         MOFED_PODS_IN_READY_STATE="$(kubectl get pods \
@@ -204,6 +218,11 @@ function install_network_operator() {
         "daemonset/${NET_OP_RDMA_DS}"
 
     kubectl apply -f ${SCRIPT_DIR}/network-operator/ipoib-network.yaml
+
+    # Show the RDMA resources on the nodes
+    rdma_on_nodes_cmd="kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, \"capacity - rdma/rdma_shared_device_a\": .status.capacity.\"rdma/rdma_shared_device_a\", \"allocatable - rdma/rdma_shared_device_a\": .status.allocatable.\"rdma/rdma_shared_device_a\"}'"
+    echo "$ ${rdma_on_nodes_cmd}"
+    eval "${rdma_on_nodes_cmd}"
 }
 
 function install_lws_controller() {
