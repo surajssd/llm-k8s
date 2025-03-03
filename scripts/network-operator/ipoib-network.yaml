@@ -1,12 +1,13 @@
 apiVersion: mellanox.com/v1alpha1
 kind: IPoIBNetwork
 metadata:
-  name: ipoibnetwork-test
+  name: aks-infiniband
 spec:
   networkNamespace: "default"
   # This is an alt interface name for the IPoIB interface. As per this blog it
   # seems to be common across the same VM SKU:
   # https://techcommunity.microsoft.com/blog/azurehighperformancecomputingblog/running-tightly-coupled-hpcai-workloads-with-infiniband-using-nvidia-network-ope/4117209
+  # It has been consistent on the machine types: Standard_HB120rs_v3 and Standard_ND96asr_v4.
   # TODO: Figure out how to get this generic name?
   master: "ibP257p0s0"
   ipam: |
