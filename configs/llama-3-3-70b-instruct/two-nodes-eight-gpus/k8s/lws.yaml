@@ -1,0 +1,159 @@
+apiVersion: leaderworkerset.x-k8s.io/v1
+kind: LeaderWorkerSet
+metadata:
+  name: llama-3-3-70b-instruct
+  namespace: default
+spec:
+  replicas: 1
+  leaderWorkerTemplate:
+    size: 2
+    restartPolicy: RecreateGroupOnPodRestart
+    leaderTemplate:
+      metadata:
+        labels:
+          role: leader
+        annotations:
+          # This name should match the IPoIBNetwork object we created earlier.
+          # You can find this config by running `kubectl get IPoIBNetwork`.
+          k8s.v1.cni.cncf.io/networks: aks-infiniband
+      spec:
+        containers:
+        - name: llama-3-3-70b-instruct-leader
+          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.7.3
+          securityContext:
+            capabilities:
+              add: [ "IPC_LOCK" ]
+            privileged: true
+          imagePullPolicy: Always
+          command:
+          - sh
+          - -c
+          # We get the Infiniband IP address first, start the Ray cluster, and
+          # then start the VLLM server. Infiniband IP is used so that all the
+          # Ray's communication happens over the Infiniband network.
+          - "set -x;
+            export VLLM_HOST_IP=$(ip -4 addr show dev net1 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}');
+            /vllm-workspace/ray_init.sh leader
+            --ray_cluster_size=$LWS_GROUP_SIZE
+            --node-ip-address=$VLLM_HOST_IP
+            --dashboard-host=0.0.0.0
+            --metrics-export-port=8080;
+            python3 -m vllm.entrypoints.openai.api_server
+            --port 8000
+            --model meta-llama/Llama-3.3-70B-Instruct
+            --tensor-parallel-size 4
+            --pipeline-parallel-size 2"
+          env:
+          - name: HUGGING_FACE_HUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: token
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 720
+          ports:
+          # VLLM port
+          - containerPort: 8000
+          # Ray dashboard port
+          - containerPort: 8265
+          # Ray metrics port
+          - containerPort: 8080
+          # Ray cluster address
+          - containerPort: 6379
+          resources:
+            limits:
+              nvidia.com/gpu: "4"
+              rdma/rdma_shared_device_a: 1
+            requests:
+              nvidia.com/gpu: "4"
+              rdma/rdma_shared_device_a: 1
+          volumeMounts:
+          - name: shm
+            mountPath: /dev/shm
+        volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+        # This is done so that the pods don't land on the same machine. We are
+        # using 4 GPU per pod but each machine type already has 8 GPUs, so all
+        # the pods could land on the same machine.
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: leaderworkerset.sigs.k8s.io/name
+                  operator: In
+                  values:
+                  - llama-3-3-70b-instruct
+              topologyKey: "kubernetes.io/hostname"
+
+    workerTemplate:
+      metadata:
+        labels:
+          role: worker
+        annotations:
+          # This name should match the IPoIBNetwork object we created earlier.
+          # You can find this config by running `kubectl get IPoIBNetwork`.
+          k8s.v1.cni.cncf.io/networks: aks-infiniband
+      spec:
+        containers:
+        - name: llama-3-3-70b-instruct-worker
+          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.7.3
+          securityContext:
+            capabilities:
+              add: [ "IPC_LOCK" ]
+            privileged: true
+          imagePullPolicy: Always
+          command:
+          - sh
+          - -c
+          # We get the Infiniband IP address first and then start the Ray
+          # worker. This is done to ensure that we use the infiniband network
+          # for the Ray cluster.
+          - "set -x; echo 'sleeping for 15s'; sleep 15;
+            export VLLM_HOST_IP=$(ip -4 addr show dev net1 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}');
+            /vllm-workspace/ray_init.sh worker
+            --ray_address=$LWS_LEADER_ADDRESS
+            --node-ip-address=$VLLM_HOST_IP
+            --metrics-export-port=8080"
+          env:
+          - name: HUGGING_FACE_HUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: token
+          ports:
+          # VLLM port
+          - containerPort: 8000
+          # Ray metrics port
+          - containerPort: 8080
+          resources:
+            limits:
+              nvidia.com/gpu: "4"
+              rdma/rdma_shared_device_a: 1
+            requests:
+              nvidia.com/gpu: "4"
+              rdma/rdma_shared_device_a: 1
+          volumeMounts:
+          - name: shm
+            mountPath: /dev/shm
+        volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: leaderworkerset.sigs.k8s.io/name
+                  operator: In
+                  values:
+                  - llama-3-3-70b-instruct
+              topologyKey: "kubernetes.io/hostname"
