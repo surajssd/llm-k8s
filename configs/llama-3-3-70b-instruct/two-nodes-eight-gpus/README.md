@@ -82,3 +82,26 @@ curl -X POST "http://localhost:8000/v1/chat/completions" \
   ]
  }' | jq
 ```
+
+## Troubleshooting
+
+Sometimes a pod may be stuck in `ContainerCreating` state for a really long time, and if you see the events you may see an event like this:
+
+```bash
+$ kubectl get events -w -A
+NAMESPACE          LAST SEEN   TYPE      REASON                   OBJECT                                    MESSAGE
+...
+vllm-benchmark     97s         Warning   FailedCreatePodSandBox   pod/benchmark-runner-56c7bdd696-jh4x9     (combined from similar events): Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "52d5beb4ca7aefc63364e0abfcee022b36ce90931438cc86cb3c9f920e97b58a": plugin type="multus" name="multus-cni-network" failed (add): Multus: [vllm-benchmark/benchmark-runner-56c7bdd696-jh4x9/80fca786-427c-4e12-a7e9-be0703cc2d8a]: error waiting for pod: Unauthorized
+...
+```
+
+The error says that the multus-cni cannot access the Kubernetes api-server: `plugin type="multus" name="multus-cni-network" failed (add): Multus: [vllm-benchmark/benchmark-runner]: error waiting for pod: Unauthorized`.
+
+To fix this simply kill all the pods in the `network-operator` namespace by running the following command:
+
+```bash
+kubectl -n network-operator delete pods --all
+```
+
+> [!NOTE]
+> I know this is not an elegant solution, but it works! To fix this the network-operator installation has to be fixed. AFAIK the multus plugin needs to have "thick" installation to fix this problem.
