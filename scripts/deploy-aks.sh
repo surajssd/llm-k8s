@@ -27,28 +27,6 @@ function deploy_aks() {
 }
 
 function add_nodepool() {
-    az feature register --namespace 'Microsoft.ContainerService' --name 'GPUDedicatedVHDPreview' || true
-
-    # Wait until the output of the following command is "Registered"
-    cmd="az feature show \
-        --namespace "Microsoft.ContainerService" \
-        --name "GPUDedicatedVHDPreview" \
-        -o tsv \
-        --query='properties.state'"
-    count=0
-    while [ "$(eval ${cmd})" != "Registered" ]; do
-        if [ $count -gt 10 ]; then
-            echo "Feature registration timed out"
-            break
-        fi
-
-        echo "Waiting for feature to be registered..."
-        sleep 5
-
-        # Increase the counter
-        count=$((count + 1))
-    done
-
     az aks nodepool add \
         --name "${GPU_NODE_POOL_NAME}" \
         --resource-group "${AZURE_RESOURCE_GROUP}" \
