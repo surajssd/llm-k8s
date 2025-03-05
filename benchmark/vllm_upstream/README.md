@@ -112,5 +112,6 @@ Here are some of the benchmark results with vLLM as the serving platform. For di
 - [results-serving_meta-llama-Llama-3.3-70B-Instruct_tp2_pp2_sharegpt](https://gist.github.com/surajssd/9e99362736af03575a8c34b46ac8e1bc)
 - [results-serving_meta-llama-Llama-3.3-70B-Instruct_tp4_pp1_sharegpt](https://gist.github.com/surajssd/eef8ebf83cadd690f6fb4ee87b30fe1a)
 - [results-serving_microsoft-phi-4_tp1_pp1_sharegpt](https://gist.github.com/surajssd/a1e546da84999df665cd9131f5ab64e0)
+- Infiniband [results-serving_meta-llama-Llama-3.3-70B-Instruct_tp4_pp2_sharegpt](https://gist.github.com/surajssd/c8bbcb244b210a3607ad952a7bdda759#file-benchmark_results-md)
 
 The results are named as follows: `results-serving_${MODEL_NAME}_tp${TENSOR_PARALLEL_SIZE}_pp${PIPELINE_PARALLEL_SIZE}_sharegpt`. Where `TENSOR_PARALLEL_SIZE` signifies the number of GPUs on a single node and `PIPELINE_PARALLEL_SIZE` signifies the number of nodes.
