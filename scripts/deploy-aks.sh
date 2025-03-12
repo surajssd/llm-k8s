@@ -81,12 +81,11 @@ function install_grafana_dashboards() {
 function install_kube_prometheus() {
     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
     helm repo update
-    # TODO: Rename the release name: kube-prometheus
     helm upgrade -i \
         --wait \
         -n monitoring \
         --create-namespace \
-        kube-proemetheus \
+        kube-prometheus \
         prometheus-community/kube-prometheus-stack
 
     kubectl apply -f ${SCRIPT_DIR}/monitoring/rbac.yaml
