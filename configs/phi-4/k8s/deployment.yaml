@@ -24,7 +24,7 @@ spec:
           medium: Memory
       containers:
       - name: phi-4
-        image: vllm/vllm-openai:v0.7.3
+        image: vllm/vllm-openai:v0.8.1
         command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
         args: [
           "--model", "microsoft/phi-4",
