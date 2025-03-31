@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phi-4-multimodal
+  namespace: default
+  labels:
+    app: phi-4-multimodal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phi-4-multimodal
+  template:
+    metadata:
+      labels:
+        app: phi-4-multimodal
+    spec:
+      volumes:
+      - name: shm
+        emptyDir:
+          medium: Memory
+      containers:
+      - name: phi-4-multimodal
+        image: vllm/vllm-openai:v0.8.1
+        command:
+        - /bin/bash
+        - -c
+        # Args: https://huggingface.co/microsoft/Phi-4-multimodal-instruct#vllm-inference
+        - "pip install vllm[audio];
+          python -m vllm.entrypoints.openai.api_server
+          --model 'microsoft/Phi-4-multimodal-instruct'
+          --tensor-parallel-size 1
+          --pipeline-parallel-size 1
+          --distributed-executor-backend mp
+          --dtype auto
+          --trust-remote-code
+          --max-model-len 131072
+          --enable-lora
+          --max-lora-rank 320
+          --lora-extra-vocab-size 256
+          --limit-mm-per-prompt audio=3,image=3
+          --max-loras 2"
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            # The model needs only 12 GB of GPU memory.
+            nvidia.com/gpu: "1"
+          requests:
+            nvidia.com/gpu: "1"
+        volumeMounts:
+        - name: shm
+          mountPath: /dev/shm
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 600
+
