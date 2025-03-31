@@ -215,7 +215,7 @@ function install_network_operator() {
 
 function install_lws_controller() {
     # Find the latest version here: https://github.com/kubernetes-sigs/lws/releases
-    VERSION=v0.5.1
+    VERSION=v0.6.0
     kubectl apply --server-side -f https://github.com/kubernetes-sigs/lws/releases/download/$VERSION/manifests.yaml
 
 }
