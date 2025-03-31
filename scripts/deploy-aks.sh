@@ -27,6 +27,17 @@ function deploy_aks() {
 }
 
 function add_nodepool() {
+    aks_infiniband_support="az feature show \
+        --namespace "Microsoft.ContainerService" \
+        --name AKSInfinibandSupport -o tsv --query 'properties.state'"
+
+    # Until the output of the above command is not "Registered", keep running the command.
+    while [[ "$(eval $aks_infiniband_support)" != "Registered" ]]; do
+        az feature register --name AKSInfinibandSupport --namespace Microsoft.ContainerService
+        echo "⏳ Waiting for the feature 'AKSInfinibandSupport' to be registered..."
+        sleep 10
+    done
+
     az aks nodepool add \
         --name "${GPU_NODE_POOL_NAME}" \
         --resource-group "${AZURE_RESOURCE_GROUP}" \
