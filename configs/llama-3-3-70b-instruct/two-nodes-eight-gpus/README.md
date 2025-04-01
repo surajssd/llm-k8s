@@ -53,7 +53,6 @@ Now deploy other Kubernetes configs to run the model:
 
 ```bash
 kubectl apply -f configs/llama-3-3-70b-instruct/two-nodes-eight-gpus/k8s/
-./configs/llama-3-3-70b-instruct/two-nodes-eight-gpus/fix-svc.sh
 ```
 
 > [!NOTE]

@@ -12,30 +12,20 @@ spec:
       metadata:
         labels:
           role: leader
-        annotations:
-          # This name should match the IPoIBNetwork object we created earlier.
-          # You can find this config by running `kubectl get IPoIBNetwork`.
-          k8s.v1.cni.cncf.io/networks: aks-infiniband
       spec:
         containers:
         - name: llama-3-3-70b-instruct-leader
-          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.1
+          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.2
           securityContext:
             capabilities:
               add: [ "IPC_LOCK" ]
-            privileged: true
           imagePullPolicy: Always
           command:
           - sh
           - -c
-          # We get the Infiniband IP address first, start the Ray cluster, and
-          # then start the VLLM server. Infiniband IP is used so that all the
-          # Ray's communication happens over the Infiniband network.
           - "set -x;
-            export VLLM_HOST_IP=$(ip -4 addr show dev net1 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}');
             /vllm-workspace/ray_init.sh leader
             --ray_cluster_size=$LWS_GROUP_SIZE
-            --node-ip-address=$VLLM_HOST_IP
             --dashboard-host=0.0.0.0
             --metrics-export-port=8080;
             python3 -m vllm.entrypoints.openai.api_server
@@ -49,6 +39,10 @@ spec:
               secretKeyRef:
                 name: hf-token-secret
                 key: token
+          - name: NCCL_DEBUG
+            value: TRACE
+          # - name: NCCL_IB_HCA
+          #   value: "^mlx5_8" # Exclude mlx5_8 (Ethernet)
           readinessProbe:
             httpGet:
               path: /health
@@ -68,10 +62,10 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "4"
-              rdma/rdma_shared_device_a: 1
+              rdma/shared_ib: 1
             requests:
               nvidia.com/gpu: "4"
-              rdma/rdma_shared_device_a: 1
+              rdma/shared_ib: 1
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
@@ -97,30 +91,20 @@ spec:
       metadata:
         labels:
           role: worker
-        annotations:
-          # This name should match the IPoIBNetwork object we created earlier.
-          # You can find this config by running `kubectl get IPoIBNetwork`.
-          k8s.v1.cni.cncf.io/networks: aks-infiniband
       spec:
         containers:
         - name: llama-3-3-70b-instruct-worker
-          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.1
+          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.2
           securityContext:
             capabilities:
               add: [ "IPC_LOCK" ]
-            privileged: true
           imagePullPolicy: Always
           command:
           - sh
           - -c
-          # We get the Infiniband IP address first and then start the Ray
-          # worker. This is done to ensure that we use the infiniband network
-          # for the Ray cluster.
-          - "set -x; echo 'sleeping for 15s'; sleep 15;
-            export VLLM_HOST_IP=$(ip -4 addr show dev net1 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}');
+          - "set -x;
             /vllm-workspace/ray_init.sh worker
             --ray_address=$LWS_LEADER_ADDRESS
-            --node-ip-address=$VLLM_HOST_IP
             --metrics-export-port=8080"
           env:
           - name: HUGGING_FACE_HUB_TOKEN
@@ -128,6 +112,10 @@ spec:
               secretKeyRef:
                 name: hf-token-secret
                 key: token
+          - name: NCCL_DEBUG
+            value: TRACE
+          # - name: NCCL_IB_HCA
+          #   value: "^mlx5_8" # Exclude mlx5_8 (Ethernet)
           ports:
           # VLLM port
           - containerPort: 8000
@@ -136,10 +124,10 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "4"
-              rdma/rdma_shared_device_a: 1
+              rdma/shared_ib: 1
             requests:
               nvidia.com/gpu: "4"
-              rdma/rdma_shared_device_a: 1
+              rdma/shared_ib: 1
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
