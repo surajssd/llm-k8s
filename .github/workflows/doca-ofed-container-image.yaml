@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - scripts/network-operator/Dockerfile
+      - .github/workflows/doca-ofed-container-image.yaml
   workflow_dispatch:
 
 jobs:

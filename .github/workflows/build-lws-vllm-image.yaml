@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - configs/llama-3-3-70b-instruct/two-nodes-four-gpus/docker/**
+      - .github/workflows/build-lws-vllm-image.yaml
   workflow_dispatch:
 
 jobs:

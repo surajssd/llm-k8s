@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - benchmark/vllm_upstream/docker/**
+      - .github/workflows/build-vllm-benchmark-image.yaml
   workflow_dispatch:
 
 jobs:
