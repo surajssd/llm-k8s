@@ -21,7 +21,7 @@ spec:
           medium: Memory
       containers:
       - name: phi-4-multimodal
-        image: vllm/vllm-openai:v0.8.1
+        image: vllm/vllm-openai:v0.8.2
         command:
         - /bin/bash
         - -c
