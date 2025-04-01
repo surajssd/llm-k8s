@@ -24,7 +24,7 @@ spec:
           - sh
           - -c
           - "set -x;
-            /vllm-workspace/ray_init.sh leader
+            bash /vllm-workspace/examples/online_serving/multi-node-serving.sh leader
             --ray_cluster_size=$LWS_GROUP_SIZE
             --dashboard-host=0.0.0.0
             --metrics-export-port=8080;
@@ -103,7 +103,7 @@ spec:
           - sh
           - -c
           - "set -x;
-            /vllm-workspace/ray_init.sh worker
+            bash /vllm-workspace/examples/online_serving/multi-node-serving.sh worker
             --ray_address=$LWS_LEADER_ADDRESS
             --metrics-export-port=8080"
           env:

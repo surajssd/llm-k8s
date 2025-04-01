@@ -20,7 +20,7 @@ spec:
           command:
           - sh
           - -c
-          - "/vllm-workspace/ray_init.sh leader --ray_cluster_size=$(LWS_GROUP_SIZE) --dashboard-host=0.0.0.0 --metrics-export-port=8080;
+          - "bash /vllm-workspace/examples/online_serving/multi-node-serving.sh leader --ray_cluster_size=$(LWS_GROUP_SIZE) --dashboard-host=0.0.0.0 --metrics-export-port=8080;
             python3 -m vllm.entrypoints.openai.api_server
             --port 8000
             --model meta-llama/Llama-3.3-70B-Instruct
@@ -71,8 +71,7 @@ spec:
           command:
           - sh
           - -c
-          # TODO: Figure out how this can be an infiniband IP?
-          - "/vllm-workspace/ray_init.sh worker --ray_address=$(LWS_LEADER_ADDRESS) --metrics-export-port=8080"
+          - "bash /vllm-workspace/examples/online_serving/multi-node-serving.sh worker --ray_address=$(LWS_LEADER_ADDRESS) --metrics-export-port=8080"
           env:
           - name: HUGGING_FACE_HUB_TOKEN
             valueFrom:
