@@ -32,7 +32,8 @@ spec:
             --port 8000
             --model meta-llama/Llama-3.3-70B-Instruct
             --tensor-parallel-size 4
-            --pipeline-parallel-size 2"
+            --pipeline-parallel-size 2
+            --enable-prefix-caching"
           env:
           - name: HUGGING_FACE_HUB_TOKEN
             valueFrom:

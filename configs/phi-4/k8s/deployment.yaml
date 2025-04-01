@@ -30,7 +30,8 @@ spec:
           "--model", "microsoft/phi-4",
           "--tensor-parallel-size", "1",
           "--pipeline-parallel-size", "1",
-          "--distributed-executor-backend", "mp"
+          "--distributed-executor-backend", "mp",
+          "--enable-prefix-caching"
         ]
         ports:
         - containerPort: 8000

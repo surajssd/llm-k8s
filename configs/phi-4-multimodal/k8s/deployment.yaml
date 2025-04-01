@@ -39,7 +39,8 @@ spec:
           --max-lora-rank 320
           --lora-extra-vocab-size 256
           --limit-mm-per-prompt audio=3,image=3
-          --max-loras 2"
+          --max-loras 2
+          --enable-prefix-caching"
         ports:
         - containerPort: 8000
         resources:
