@@ -10,8 +10,8 @@ Make necesary changes to the `.env` file as you see fit:
 
 ```bash
 source .env
-export VM_SIZE="Standard_ND96asr_v4"
-export GPU_NODE_COUNT=2
+export NODE_POOL_VM_SIZE="Standard_ND96asr_v4"
+export NODE_POOL_NODE_COUNT=2
 export AZURE_REGION=southcentralus
 ```
 

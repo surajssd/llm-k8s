@@ -15,8 +15,8 @@ kubectl -n vllm-benchmark create configmap benchmark-runner \
     --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct-leader.default:8000" \
     --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct" \
     --from-literal=TENSOR_PARALLEL_SIZE=2 \
-    --from-literal=PIPELINE_PARALLEL_SIZE="${GPU_NODE_COUNT}" \
-    --from-literal=GPU_VM_SKU="${VM_SIZE}"
+    --from-literal=PIPELINE_PARALLEL_SIZE="${NODE_POOL_NODE_COUNT}" \
+    --from-literal=GPU_VM_SKU="${NODE_POOL_VM_SIZE}"
 ```
 
 Let's create a Kubernetes secret with hugging token. First get the token by going [here](https://huggingface.co/settings/tokens). You only need a "Read" token. Copy and export the token as an environment variable:
@@ -85,8 +85,8 @@ kubectl -n vllm-benchmark create configmap benchmark-runner \
     --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct-leader.default:8000" \
     --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct" \
     --from-literal=TENSOR_PARALLEL_SIZE=2 \
-    --from-literal=PIPELINE_PARALLEL_SIZE="${GPU_NODE_COUNT}" \
-    --from-literal=GPU_VM_SKU="${VM_SIZE}" \
+    --from-literal=PIPELINE_PARALLEL_SIZE="${NODE_POOL_NODE_COUNT}" \
+    --from-literal=GPU_VM_SKU="${NODE_POOL_VM_SIZE}" \
     --dry-run=client -o yaml \
     | kubectl apply -f -
 ```

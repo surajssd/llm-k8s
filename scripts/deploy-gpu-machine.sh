@@ -9,7 +9,7 @@ function deploy_vm() {
 
     az vm create \
         --resource-group "${AZURE_RESOURCE_GROUP}" \
-        --size "${VM_SIZE}" \
+        --size "${NODE_POOL_VM_SIZE}" \
         --name "${VM_NAME}" \
         --location "${AZURE_REGION}" \
         --admin-username "${USER_NAME}" \
@@ -17,7 +17,7 @@ function deploy_vm() {
         --authentication-type ssh \
         --image "${VM_IMAGE}" \
         --public-ip-address-dns-name "${VM_NAME}" \
-        --os-disk-size-gb "${VM_DISK_SIZE}" \
+        --os-disk-size-gb "${NODE_POOL_VM_DISK_SIZE}" \
         --security-type standard
 }
 

@@ -8,8 +8,8 @@ Make necesary changes to the `.env` file as you see fit:
 
 ```bash
 source .env
-export VM_SIZE="Standard_NC24ads_A100_v4"
-export GPU_NODE_COUNT=1
+export NODE_POOL_VM_SIZE="Standard_NC24ads_A100_v4"
+export NODE_POOL_NODE_COUNT=1
 ```
 
 Now run the following command to deploy AKS:
