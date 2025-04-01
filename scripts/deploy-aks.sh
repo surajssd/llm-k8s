@@ -107,8 +107,9 @@ function install_kube_prometheus() {
 }
 
 function install_gpu_operator() {
-    kubectl create ns gpu-operator || true
-    kubectl label --overwrite ns gpu-operator pod-security.kubernetes.io/enforce=privileged
+    gpu_operator_ns="gpu-operator"
+    kubectl create ns "${gpu_operator_ns}" || true
+    kubectl label --overwrite ns "${gpu_operator_ns}" pod-security.kubernetes.io/enforce=privileged
 
     helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
     helm repo update
@@ -120,24 +121,37 @@ function install_gpu_operator() {
 
     HELM_CHART_FLAGS=""
     if [[ "${NFD_PODS_COUNT}" -gt 0 ]]; then
-        HELM_CHART_FLAGS="--set nfd.enabled=false"
+        HELM_CHART_FLAGS="--set nfd.enabled=false --set driver.rdma.enabled=true"
     fi
 
+    # Find latest version of the GPU operator: https://github.com/NVIDIA/gpu-operator/releases
     helm upgrade -i \
         --wait \
-        -n gpu-operator \
+        -n "${gpu_operator_ns}" \
         --create-namespace \
         gpu-operator \
         nvidia/gpu-operator \
         --set dcgmExporter.serviceMonitor.enabled="true" ${HELM_CHART_FLAGS}
 
-    # Wait until the output of the command "cat foo" is empty
-    while [ ! "$(kubectl get pods -n gpu-operator | grep Completed)" ]; do
-        echo "Waiting for pods to be ready..."
-        sleep 5
+    cuda_validator_label="app=nvidia-cuda-validator"
+
+    echo "⏳ Waiting for all pods with label $cuda_validator_label in namespace $gpu_operator_ns to complete..."
+    while true; do
+        pods_json=$(kubectl get pods -n "$gpu_operator_ns" -l "$cuda_validator_label" -o json)
+
+        total=$(echo "${pods_json}" | jq '.items | length')
+        succeeded=$(echo "${pods_json}" | jq '[.items[] | select(.status.phase == "Succeeded")] | length')
+
+        if [ "${total}" -eq "${succeeded}" ] && [ "${total}" -ne 0 ]; then
+            echo "✅ All ${total} pods have completed successfully."
+            break
+        else
+            echo "⏳ Waiting for nvidia-cuda-validator, ${succeeded}/${total} pods completed..."
+            sleep 5
+        fi
     done
 
-    echo -e '\nGPUs on nodes:\n'
+    echo -e '\n🤖 GPUs on nodes:\n'
     gpu_on_nodes_cmd="kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, \"nvidia.com/gpu\": .status.allocatable[\"nvidia.com/gpu\"]}'"
     echo "$ ${gpu_on_nodes_cmd}"
     eval "${gpu_on_nodes_cmd}"
