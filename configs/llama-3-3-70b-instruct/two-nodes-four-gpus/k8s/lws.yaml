@@ -15,7 +15,7 @@ spec:
       spec:
         containers:
         - name: llama-3-3-70b-instruct-leader
-          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.2
+          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.3
           imagePullPolicy: Always
           command:
           - sh
@@ -67,7 +67,7 @@ spec:
       spec:
         containers:
         - name: llama-3-3-70b-instruct-worker
-          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.2
+          image: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.3
           imagePullPolicy: Always
           command:
           - sh

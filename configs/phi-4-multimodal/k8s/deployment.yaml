@@ -21,7 +21,7 @@ spec:
           medium: Memory
       containers:
       - name: vllm
-        image: vllm/vllm-openai:v0.8.2
+        image: vllm/vllm-openai:v0.8.3
         command:
         - /bin/bash
         - -c
