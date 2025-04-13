@@ -10,4 +10,9 @@ spec:
     - protocol: TCP
       port: 8000
       targetPort: 8000
+      name: vllm
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: openwebui
     type: ClusterIP

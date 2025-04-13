@@ -30,13 +30,23 @@ kubectl apply -f configs/phi-4-multimodal/k8s
 
 ### Access the model
 
+### Testing the model using OpenWebUI
+
+Create a port-forward so that you can access the openwebui locally:
+
+```bash
+kubectl port-forward svc/phi-4-multimodal 8080
+```
+
+Then open your browser and go to [http://localhost:8080](http://localhost:8080).
+
+### Testing the model using curl
+
 Create a port-forward so that you can access the model locally:
 
 ```bash
 kubectl port-forward svc/phi-4-multimodal 8000
 ```
-
-### Testing the model using curl
 
 Text-only input:
 

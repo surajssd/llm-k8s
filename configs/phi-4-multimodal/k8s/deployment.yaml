@@ -20,14 +20,14 @@ spec:
         emptyDir:
           medium: Memory
       containers:
-      - name: phi-4-multimodal
+      - name: vllm
         image: vllm/vllm-openai:v0.8.2
         command:
         - /bin/bash
         - -c
         # Args: https://huggingface.co/microsoft/Phi-4-multimodal-instruct#vllm-inference
         - "pip install vllm[audio];
-          python -m vllm.entrypoints.openai.api_server
+          python3 -m vllm.entrypoints.openai.api_server
           --model 'microsoft/Phi-4-multimodal-instruct'
           --tensor-parallel-size 1
           --pipeline-parallel-size 1
@@ -59,4 +59,20 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 600
+      - name: openwebui
+        image: ghcr.io/open-webui/open-webui:0.6.2
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OPENAI_API_BASE_URL
+          value: "http://localhost:8000/v1"
+        - name: AUDIO_STT_ENGINE
+          value: "openai"
 
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 600
