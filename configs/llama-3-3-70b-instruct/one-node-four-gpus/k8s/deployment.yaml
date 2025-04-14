@@ -21,7 +21,7 @@ spec:
         command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
         args: [
           "--model", "meta-llama/Llama-3.3-70B-Instruct",
-          "--tensor-parallel-size", "4",
+          "--tensor-parallel-size", "8",
           "--pipeline-parallel-size", "1",
           "--distributed-executor-backend", "mp",
           "--enable-prefix-caching"
@@ -32,15 +32,13 @@ spec:
             secretKeyRef:
               name: hf-token-secret
               key: token
-        - name: PYTORCH_CUDA_ALLOC_CONF
-          value: "expandable_segments:True"
         ports:
         - containerPort: 8000
         resources:
           limits:
-            nvidia.com/gpu: "4"
+            nvidia.com/gpu: "8"
           requests:
-            nvidia.com/gpu: "4"
+            nvidia.com/gpu: "8"
         volumeMounts:
         - name: shm
           mountPath: /dev/shm
