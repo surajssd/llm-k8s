@@ -63,10 +63,10 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "4"
-              rdma/shared_ib: 1
+              # rdma/shared_ib: 1
             requests:
               nvidia.com/gpu: "4"
-              rdma/shared_ib: 1
+              # rdma/shared_ib: 1
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
@@ -125,10 +125,10 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "4"
-              rdma/shared_ib: 1
+              # rdma/shared_ib: 1
             requests:
               nvidia.com/gpu: "4"
-              rdma/shared_ib: 1
+              # rdma/shared_ib: 1
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
