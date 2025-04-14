@@ -41,9 +41,11 @@ spec:
                 name: hf-token-secret
                 key: token
           - name: NCCL_DEBUG
-            value: TRACE
-          # - name: NCCL_IB_HCA
-          #   value: "^mlx5_8" # Exclude mlx5_8 (Ethernet)
+            value: INFO
+          - name: NCCL_NET_GDR_LEVEL
+            value: SYS
+          - name: NCCL_IB_DISABLE
+            value: "0"
           readinessProbe:
             httpGet:
               path: /health
@@ -63,10 +65,10 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "4"
-              # rdma/shared_ib: 1
+              rdma/shared_ib: 1
             requests:
               nvidia.com/gpu: "4"
-              # rdma/shared_ib: 1
+              rdma/shared_ib: 1
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
@@ -114,9 +116,11 @@ spec:
                 name: hf-token-secret
                 key: token
           - name: NCCL_DEBUG
-            value: TRACE
-          # - name: NCCL_IB_HCA
-          #   value: "^mlx5_8" # Exclude mlx5_8 (Ethernet)
+            value: INFO
+          - name: NCCL_NET_GDR_LEVEL
+            value: SYS
+          - name: NCCL_IB_DISABLE
+            value: "0"
           ports:
           # VLLM port
           - containerPort: 8000
@@ -125,10 +129,10 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "4"
-              # rdma/shared_ib: 1
+              rdma/shared_ib: 1
             requests:
               nvidia.com/gpu: "4"
-              # rdma/shared_ib: 1
+              rdma/shared_ib: 1
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
