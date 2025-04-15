@@ -1,0 +1,4 @@
+{
+  "client_command": "python3 benchmark_serving.py         --save-result         --base-url http://llama-3-3-70b-instruct.default:8000         --result-dir /root/vllm/.buildkite/results/         --result-filename tp8_pp1_qps_16.json         --request-rate 16         --model=meta-llama/Llama-3.3-70B-Instruct         --backend=vllm         --dataset-name=sharegpt         --dataset-path=/root/sharegpt.json         --num-prompts=200",
+  "gpu_type": "Standard_ND96asr_v4 x 1"
+}
