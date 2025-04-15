@@ -32,8 +32,6 @@ spec:
             secretKeyRef:
               name: hf-token-secret
               key: token
-        - name: PYTORCH_CUDA_ALLOC_CONF
-          value: "expandable_segments:True"
         ports:
         - containerPort: 8000
         resources:
