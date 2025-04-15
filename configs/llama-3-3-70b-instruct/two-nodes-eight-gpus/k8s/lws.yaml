@@ -41,7 +41,11 @@ spec:
                 name: hf-token-secret
                 key: token
           - name: NCCL_DEBUG
-            value: TRACE
+            value: INFO
+          - name: NCCL_NET_GDR_LEVEL
+            value: SYS
+          - name: NCCL_IB_DISABLE
+            value: "0"
           # - name: NCCL_IB_HCA
           #   value: "^mlx5_8" # Exclude mlx5_8 (Ethernet)
           readinessProbe:
@@ -114,7 +118,11 @@ spec:
                 name: hf-token-secret
                 key: token
           - name: NCCL_DEBUG
-            value: TRACE
+            value: INFO
+          - name: NCCL_NET_GDR_LEVEL
+            value: SYS
+          - name: NCCL_IB_DISABLE
+            value: "0"
           # - name: NCCL_IB_HCA
           #   value: "^mlx5_8" # Exclude mlx5_8 (Ethernet)
           ports:
