@@ -1,0 +1,31 @@
+# Right now vllm metrics in the ray based distributed settings only show up in the leader.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    model: deepseek-v2-5
+  name: deepseek-v2-5-vllm-metrics
+  namespace: default
+spec:
+  endpoints:
+  - path: /metrics
+    port: http
+  selector:
+    matchLabels:
+      model: deepseek-v2-5
+      role: leader
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    model: deepseek-v2-5
+  name: deepseek-v2-5-ray-metrics
+  namespace: default
+spec:
+  endpoints:
+  - path: /
+    port: ray-metrics
+  selector:
+    matchLabels:
+      model: deepseek-v2-5
