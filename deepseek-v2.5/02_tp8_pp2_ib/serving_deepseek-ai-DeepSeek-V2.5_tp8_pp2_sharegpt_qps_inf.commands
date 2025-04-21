@@ -1,0 +1,4 @@
+{
+  "client_command": "python3 benchmark_serving.py         --save-result         --base-url http://deepseek-v2-5-leader.default:8000         --result-dir /root/vllm/.buildkite/results/         --result-filename serving_deepseek-ai-DeepSeek-V2.5_tp8_pp2_sharegpt_qps_inf.json         --request-rate inf         --model=deepseek-ai/DeepSeek-V2.5         --backend=vllm         --dataset-name=sharegpt         --dataset-path=/root/sharegpt.json         --num-prompts=200",
+  "gpu_type": "ib-Standard_ND96asr_v4 x 2"
+}
