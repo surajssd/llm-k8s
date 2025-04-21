@@ -21,7 +21,6 @@ spec:
           - sh
           - -c
           - "set -x;
-            sleep inf;
             bash /vllm-workspace/examples/online_serving/multi-node-serving.sh leader
             --ray_cluster_size=$LWS_GROUP_SIZE
             --dashboard-host=0.0.0.0
