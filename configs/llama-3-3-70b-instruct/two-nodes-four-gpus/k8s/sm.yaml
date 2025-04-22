@@ -4,6 +4,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     model: llama-3-3-70b-instruct
+    release: kube-prometheus
   name: llama-3-3-70b-instruct-vllm-metrics
   namespace: default
 spec:
@@ -20,6 +21,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     model: llama-3-3-70b-instruct
+    release: kube-prometheus
   name: llama-3-3-70b-instruct-ray-metrics
   namespace: default
 spec:
