@@ -4,6 +4,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     model: deepseek-v2-5
+    release: kube-prometheus
   name: deepseek-v2-5-vllm-metrics
   namespace: default
 spec:
@@ -20,6 +21,7 @@ kind: ServiceMonitor
 metadata:
   labels:
     model: deepseek-v2-5
+    release: kube-prometheus
   name: deepseek-v2-5-ray-metrics
   namespace: default
 spec:

@@ -70,10 +70,16 @@ spec:
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
+          - name: model
+            mountPath: /root/.cache/huggingface
         volumes:
         - name: shm
           emptyDir:
             medium: Memory
+        - name: model
+          hostPath:
+            path: /mnt/model
+            type: DirectoryOrCreate
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -126,10 +132,16 @@ spec:
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
+          - name: model
+            mountPath: /root/.cache/huggingface
         volumes:
         - name: shm
           emptyDir:
             medium: Memory
+        - name: model
+          hostPath:
+            path: /mnt/model
+            type: DirectoryOrCreate
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:

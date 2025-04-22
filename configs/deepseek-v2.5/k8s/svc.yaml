@@ -45,7 +45,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: llama-3-1-nemotron-ultra-253b-ray-dashboard
+  name: deepseek-v2-5-ray-dashboard
   namespace: default
   labels:
     model: ray-dashboard
