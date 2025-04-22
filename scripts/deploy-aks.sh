@@ -70,9 +70,7 @@ function install_grafana_dashboards() {
     # More about the dashboards here:
     # https://github.com/ray-project/kuberay/tree/master/config/grafana
     # https://docs.ray.io/en/master/cluster/kubernetes/k8s-ecosystem/prometheus-grafana.html#kuberay-prometheus-grafana
-    [ -f data_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/data_grafana_dashboard.json
     [ -f default_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/default_grafana_dashboard.json
-    [ -f serve_deployment_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/serve_deployment_grafana_dashboard.json
     [ -f serve_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/serve_grafana_dashboard.json
 
     # Nvidia dashboards
