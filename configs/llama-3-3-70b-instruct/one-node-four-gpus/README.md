@@ -41,7 +41,9 @@ kubectl create secret generic hf-token-secret --from-literal token=${HF_TOKEN}
 Now deploy other Kubernetes configs to run the model:
 
 ```bash
-kubectl apply -f configs/llama-3-3-70b-instruct/one-node-four-gpus/k8s/
+helm upgrade -i llama-3-3-70b-instruct \
+  --values configs/llama-3-3-70b-instruct/one-node-four-gpus/values.yaml \
+  ./configs/chart
 ```
 
 ## Access the model

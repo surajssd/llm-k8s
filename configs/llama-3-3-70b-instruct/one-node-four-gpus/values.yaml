@@ -1,0 +1,15 @@
+single:
+  enabled: true
+
+resources:
+  # This is a 70B model so needs ~140 GB of GPU memory.
+  nvidia.com/gpu: "4"
+
+cli: "python3 -m vllm.entrypoints.openai.api_server
+        --model 'meta-llama/Llama-3.3-70B-Instruct'
+        --tensor-parallel-size 4
+        --pipeline-parallel-size 1
+        --distributed-executor-backend mp
+        --enable-prefix-caching"
+
+huggingFaceToken: true
