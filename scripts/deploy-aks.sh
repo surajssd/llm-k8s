@@ -74,10 +74,8 @@ function install_grafana_dashboards() {
     [ -f serve_grafana_dashboard.json ] || curl -LO https://raw.githubusercontent.com/ray-project/kuberay/refs/heads/master/config/grafana/serve_grafana_dashboard.json
 
     # Nvidia dashboards
-    # https://grafana.com/grafana/dashboards/12239-nvidia-dcgm-exporter-dashboard/
-    [ -f nvidia-dcgm-exporter-dashboard.json ] || curl -o nvidia-dcgm-exporter-dashboard.json -L https://grafana.com/api/dashboards/12239/revisions/2/download
-    # https://grafana.com/grafana/dashboards/15117-nvidia-dcgm-exporter/
-    [ -f nvidia-dcgm-exporter.json ] || curl -o nvidia-dcgm-exporter.json -L https://grafana.com/api/dashboards/15117/revisions/2/download
+    # https://github.com/NVIDIA/dcgm-exporter/tree/main/grafana
+    [ -f dcgm-exporter-dashboard.json ] || curl -o dcgm-exporter-dashboard.json -L https://raw.githubusercontent.com/NVIDIA/dcgm-exporter/refs/heads/main/grafana/dcgm-exporter-dashboard.json
 
     # Iterate over the files in the directory and print them
     for file in $(ls); do
@@ -93,12 +91,19 @@ function install_grafana_dashboards() {
 function install_kube_prometheus() {
     helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
     helm repo update
-    helm upgrade -i \
+    kube_prometheus_install="helm upgrade -i \
         --wait \
         -n monitoring \
         --create-namespace \
         kube-prometheus \
-        prometheus-community/kube-prometheus-stack
+        prometheus-community/kube-prometheus-stack"
+
+    # If you don't retry then it could fail with errors like:
+    # Error: create: failed to create: Post "https://foobar.southcentralus.azmk8s.io:443/api/v1/namespaces/monitoring/secrets": remote error: tls: bad record MAC
+    until ${kube_prometheus_install}; do
+        echo "⏳ Waiting for kube-prometheus to be installed..."
+        sleep 5
+    done
 
     kubectl apply -f ${SCRIPT_DIR}/monitoring/rbac.yaml
     install_grafana_dashboards
