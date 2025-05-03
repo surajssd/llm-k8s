@@ -1,6 +1,6 @@
-FROM vllm/vllm-openai:v0.8.3
+FROM vllm/vllm-openai:v0.8.5
 
-ENV VLLM_VERSION=0.8.3 \
+ENV VLLM_VERSION=0.8.5 \
     VLLM_CODE="/root/vllm" \
     SHAREGPT_DATASET_URL="https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/resolve/main/ShareGPT_V3_unfiltered_cleaned_split.json"
 
