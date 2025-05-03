@@ -34,7 +34,9 @@ Now run the following commands to deploy AKS and related components:
 Now deploy other Kubernetes configs to run the model:
 
 ```bash
-kubectl apply -f configs/deepseek-v2.5/k8s
+helm upgrade -i deepseek-v2-5 \
+  --values configs/deepseek-v2.5/values.yaml \
+  ./configs/chart
 ```
 
 ## Access the model

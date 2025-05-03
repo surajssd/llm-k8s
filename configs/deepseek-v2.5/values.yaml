@@ -1,0 +1,25 @@
+distributed:
+  enabled: true
+
+images:
+  vLLM: ghcr.io/surajssd/llm-k8s/lws-vllm:0.8.3
+
+cli: "bash /vllm-workspace/examples/online_serving/multi-node-serving.sh leader
+        --ray_cluster_size=$LWS_GROUP_SIZE
+        --dashboard-host=0.0.0.0
+        --metrics-export-port=8888;
+      python3 -m vllm.entrypoints.openai.api_server
+        --port 8000
+        --model deepseek-ai/DeepSeek-V2.5
+        --tensor-parallel-size 8
+        --pipeline-parallel-size 2
+        --enable-prefix-cachin
+        --max-model-len 8192
+        --enforce-eager
+        --trust-remote-code"
+
+resources:
+  nvidia.com/gpu: "8"
+  # Enable IB.
+  rdma/shared_ib: 1
+
