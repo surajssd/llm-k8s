@@ -39,7 +39,7 @@ jobs:
       id: tag
       uses: docker/metadata-action@v5
       with:
-        images: ghcr.io/surajssd/llm-k8s/lws-vllm
+        images: ghcr.io/surajssd/llm-k8s/vllm
         tags: |
           type=raw,value=latest
           type=raw,value=0.8.5
