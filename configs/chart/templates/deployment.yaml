@@ -20,6 +20,10 @@ spec:
       - name: shm
         emptyDir:
           medium: Memory
+      - name: model
+        hostPath:
+          path: /mnt/model
+          type: DirectoryOrCreate
       containers:
       - name: vllm
         image: {{ .Values.images.vLLM }}
@@ -39,6 +43,8 @@ spec:
         volumeMounts:
         - name: shm
           mountPath: /dev/shm
+        - name: model
+          mountPath: /root/.cache/huggingface
         readinessProbe:
           httpGet:
             path: /health
