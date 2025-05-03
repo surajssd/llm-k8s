@@ -1,0 +1,14 @@
+single:
+  enabled: true
+
+resources:
+  # This is a 14.7B model so needs ~30GB of GPU memory. So a A100 of 40GB or
+  # 80GB is enough.
+  nvidia.com/gpu: "1"
+
+cli: "python3 -m vllm.entrypoints.openai.api_server
+        --model 'microsoft/phi-4'
+        --tensor-parallel-size 1
+        --pipeline-parallel-size 1
+        --distributed-executor-backend mp
+        --enable-prefix-caching"
