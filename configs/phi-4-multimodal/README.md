@@ -25,7 +25,9 @@ Now run the following command to deploy AKS:
 Deploy Kubernetes configs to run the model:
 
 ```bash
-kubectl apply -f configs/phi-4-multimodal/k8s
+helm upgrade -i phi-4-multimodal \
+  --values configs/phi-4-multimodal/values.yaml \
+  ./configs/chart
 ```
 
 ### Access the model
