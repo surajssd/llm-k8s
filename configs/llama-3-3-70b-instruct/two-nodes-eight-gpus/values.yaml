@@ -19,3 +19,5 @@ resources:
   nvidia.com/gpu: "4"
   # Enable IB.
   rdma/shared_ib: 1
+
+huggingFaceToken: true
