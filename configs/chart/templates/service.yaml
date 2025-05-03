@@ -19,3 +19,73 @@ spec:
     targetPort: 8080
   type: ClusterIP
 {{- end }}
+---
+{{ if .Values.distributed.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-leader
+  namespace: default
+  labels:
+    model: {{ .Release.Name }}
+    role: leader
+spec:
+  ports:
+  - name: vllm
+    protocol: TCP
+    port: 8000
+    targetPort: 8000
+
+  - name: openwebui
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+
+  # This is just so that the servicemonitors can scrape the metrics
+  - name: ray-metrics
+    protocol: TCP
+    port: 8888
+    targetPort: 8888
+  selector:
+    leaderworkerset.sigs.k8s.io/name: {{ .Release.Name }}
+    role: leader
+  type: ClusterIP
+---
+# This is just so that the servicemonitors can scrape the metrics
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-worker
+  namespace: default
+  labels:
+    model: {{ .Release.Name }}
+    role: worker
+spec:
+  ports:
+  - name: ray-metrics
+    port: 8888
+    protocol: TCP
+    targetPort: 8888
+  selector:
+    leaderworkerset.sigs.k8s.io/name: {{ .Release.Name }}
+    role: worker
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ray-dashboard
+  namespace: default
+  labels:
+    model: ray-dashboard
+spec:
+  ports:
+  - name: ray-dashboard
+    port: 8265
+    protocol: TCP
+    targetPort: 8265
+  selector:
+    leaderworkerset.sigs.k8s.io/name: {{ .Release.Name }}
+    role: leader
+  type: ClusterIP
+{{- end }}

@@ -1,0 +1,162 @@
+{{ if .Values.distributed.enabled }}
+apiVersion: leaderworkerset.x-k8s.io/v1
+kind: LeaderWorkerSet
+metadata:
+  name: {{ .Release.Name }}
+  namespace: default
+spec:
+  replicas: 1
+  leaderWorkerTemplate:
+    size: 2
+    restartPolicy: RecreateGroupOnPodRestart
+    leaderTemplate:
+      metadata:
+        labels:
+          role: leader
+      spec:
+        containers:
+        - name: vllm
+          image: {{ .Values.images.vLLM }}
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add: [ "IPC_LOCK" ]
+          command:
+          - /bin/bash
+          - -xc
+          - {{ .Values.cli | quote }}
+          env:
+          - name: HUGGING_FACE_HUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: token
+          {{- range $name, $value := .Values.distributed.env }}
+          - name: {{ $name }}
+            value: {{ $value | quote }}
+          {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 720
+          ports:
+          # VLLM port
+          - containerPort: 8000
+          # Ray dashboard port
+          - containerPort: 8265
+          # Ray metrics port
+          - containerPort: 8888
+          # Ray cluster address
+          - containerPort: 6379
+          resources:
+            limits:
+              {{- toYaml .Values.resources | nindent 14 }}
+            requests:
+              {{- toYaml .Values.resources | nindent 14 }}
+          volumeMounts:
+          - name: shm
+            mountPath: /dev/shm
+          - name: model
+            mountPath: /root/.cache/huggingface
+        - name: openwebui
+          image: {{ .Values.images.openwebui }}
+          ports:
+          - containerPort: 8080
+          env:
+          - name: OPENAI_API_BASE_URL
+            value: "http://localhost:8000/v1"
+          - name: AUDIO_STT_ENGINE
+            value: "openai"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 600
+        volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+        - name: model
+          hostPath:
+            path: /mnt/model
+            type: DirectoryOrCreate
+        # This is done so that the pods don't land on the same machine.
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: leaderworkerset.sigs.k8s.io/name
+                  operator: In
+                  values:
+                  - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+
+    workerTemplate:
+      metadata:
+        labels:
+          role: worker
+      spec:
+        containers:
+        - name: vllm
+          image: {{ .Values.images.vLLM }}
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add: [ "IPC_LOCK" ]
+          command:
+          - sh
+          - -c
+          - "set -x;
+            bash /vllm-workspace/examples/online_serving/multi-node-serving.sh worker
+            --ray_address=$LWS_LEADER_ADDRESS
+            --metrics-export-port=8888"
+          env:
+          - name: HUGGING_FACE_HUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token-secret
+                key: token
+          {{- range $name, $value := .Values.distributed.env }}
+          - name: {{ $name }}
+            value: {{ $value | quote }}
+          {{- end }}
+          ports:
+          # VLLM port
+          - containerPort: 8000
+          # Ray metrics port
+          - containerPort: 8888
+          resources:
+            limits:
+              {{- toYaml .Values.resources | nindent 14 }}
+            requests:
+              {{- toYaml .Values.resources | nindent 14 }}
+          volumeMounts:
+          - name: shm
+            mountPath: /dev/shm
+          - name: model
+            mountPath: /root/.cache/huggingface
+        volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+        - name: model
+          hostPath:
+            path: /mnt/model
+            type: DirectoryOrCreate
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: leaderworkerset.sigs.k8s.io/name
+                  operator: In
+                  values:
+                  - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+{{- end }}

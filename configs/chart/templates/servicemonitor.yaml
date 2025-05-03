@@ -1,0 +1,36 @@
+# Right now vllm metrics in the ray based distributed settings only show up in the leader.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    model: {{ .Release.Name }}
+    release: kube-prometheus
+  name: {{ .Release.Name }}-vllm-metrics
+  namespace: default
+spec:
+  endpoints:
+  - path: /metrics
+    port: vllm
+  selector:
+    matchLabels:
+      model: {{ .Release.Name }}
+      role: leader
+---
+# Ray is only available in the LWS distributed settings.
+{{ if .Values.distributed.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    model: {{ .Release.Name }}
+    release: kube-prometheus
+  name: {{ .Release.Name }}-ray-metrics
+  namespace: default
+spec:
+  endpoints:
+  - path: /
+    port: ray-metrics
+  selector:
+    matchLabels:
+      model: {{ .Release.Name }}
+{{- end }}

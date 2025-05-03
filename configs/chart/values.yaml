@@ -3,6 +3,11 @@ single:
 
 distributed:
   enabled: false
+  env:
+    NCCL_DEBUG: INFO
+    NCCL_NET_GDR_LEVEL: SYS
+    NCCL_IB_DISABLE: "0"
+    # NCCL_IB_HCA: "^mlx5_8" # Exclude mlx5_8 (Ethernet)
 
 images:
   vLLM: vllm/vllm-openai:v0.8.3
