@@ -17,3 +17,5 @@ resources:
   nvidia.com/gpu: "1"
 
 cli: ""
+
+huggingFaceToken: false

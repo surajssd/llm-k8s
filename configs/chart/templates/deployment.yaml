@@ -33,6 +33,14 @@ spec:
         - {{ .Values.cli | quote }}
         ports:
         - containerPort: 8000
+        {{- if .Values.huggingFaceToken }}
+        env:
+        - name: HUGGING_FACE_HUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token-secret
+              key: token
+        {{- end }}
         {{- if .Values.resources }}
         resources:
           limits:
