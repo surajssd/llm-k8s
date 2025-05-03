@@ -1,0 +1,16 @@
+name: ""
+
+single:
+  enabled: false
+
+distributed:
+  enabled: false
+
+images:
+  vLLM: vllm/vllm-openai:v0.8.3
+  openwebui: ghcr.io/open-webui/open-webui:0.6.2
+
+resources:
+  nvidia.com/gpu: "1"
+
+cli: ""

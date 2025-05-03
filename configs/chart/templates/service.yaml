@@ -1,0 +1,20 @@
+{{ if .Values.single.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  namespace: default
+spec:
+    selector:
+      app: {{ .Release.Name }}
+    ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+      name: vllm
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: openwebui
+    type: ClusterIP
+{{- end }}

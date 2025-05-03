@@ -1,0 +1,65 @@
+{{ if .Values.single.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: default
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      volumes:
+      - name: shm
+        emptyDir:
+          medium: Memory
+      containers:
+      - name: vllm
+        image: {{ .Values.images.vLLM }}
+        command:
+        - /bin/bash
+        - -xc
+        - {{ .Values.cli | quote }}
+        ports:
+        - containerPort: 8000
+        {{- if .Values.resources }}
+        resources:
+          limits:
+            {{- toYaml .Values.resources | nindent 12 }}
+          requests:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- end }}
+        volumeMounts:
+        - name: shm
+          mountPath: /dev/shm
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 600
+      - name: openwebui
+        image: {{ .Values.images.openwebui }}
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OPENAI_API_BASE_URL
+          value: "http://localhost:8000/v1"
+        - name: AUDIO_STT_ENGINE
+          value: "openai"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 600
+{{- end }}
