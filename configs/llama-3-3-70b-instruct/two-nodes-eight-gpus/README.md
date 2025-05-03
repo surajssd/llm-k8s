@@ -52,11 +52,10 @@ kubectl create secret generic hf-token-secret --from-literal token=${HF_TOKEN}
 Now deploy other Kubernetes configs to run the model:
 
 ```bash
-kubectl apply -f configs/llama-3-3-70b-instruct/two-nodes-eight-gpus/k8s/
+helm upgrade -i llama-3-3-70b-instruct \
+  --values configs/llama-3-3-70b-instruct/two-nodes-eight-gpus/values.yaml \
+  ./configs/chart
 ```
-
-> [!NOTE]
-> Every time the model serving pods created by the LWS are coming up, please run the `./configs/llama-3-3-70b-instruct/two-nodes-eight-gpus/fix-svc.sh` script in the background so that the worker pod can reach the right leader pod. This script is resonsible for patching the endpoint of the leader pod. The leader pod's endpoint points at the leader pod's default internal IP address. But we want to use the leader pod's secondary IP assigned by the multus CNI plugin. This script will patch the leader pod's endpoint to use the secondary IP address. The address is usually in the range of `192.168.0.0/16` instead of the default `10.0.0.0/8` range.
 
 ## Access the model
 
@@ -81,26 +80,3 @@ curl -X POST "http://localhost:8000/v1/chat/completions" \
   ]
  }' | jq
 ```
-
-## Troubleshooting
-
-Sometimes a pod may be stuck in `ContainerCreating` state for a really long time, and if you see the events you may see an event like this:
-
-```bash
-$ kubectl get events -w -A
-NAMESPACE          LAST SEEN   TYPE      REASON                   OBJECT                                    MESSAGE
-...
-vllm-benchmark     97s         Warning   FailedCreatePodSandBox   pod/benchmark-runner-56c7bdd696-jh4x9     (combined from similar events): Failed to create pod sandbox: rpc error: code = Unknown desc = failed to setup network for sandbox "52d5beb4ca7aefc63364e0abfcee022b36ce90931438cc86cb3c9f920e97b58a": plugin type="multus" name="multus-cni-network" failed (add): Multus: [vllm-benchmark/benchmark-runner-56c7bdd696-jh4x9/80fca786-427c-4e12-a7e9-be0703cc2d8a]: error waiting for pod: Unauthorized
-...
-```
-
-The error says that the multus-cni cannot access the Kubernetes api-server: `plugin type="multus" name="multus-cni-network" failed (add): Multus: [vllm-benchmark/benchmark-runner]: error waiting for pod: Unauthorized`.
-
-To fix this simply kill all the pods in the `network-operator` namespace by running the following command:
-
-```bash
-kubectl -n network-operator delete pods --all
-```
-
-> [!NOTE]
-> I know this is not an elegant solution, but it works! To fix this the network-operator installation has to be fixed. AFAIK the multus plugin needs to have "thick" installation to fix this problem.
