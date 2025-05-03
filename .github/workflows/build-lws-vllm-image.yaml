@@ -3,7 +3,7 @@ name: Build & Push LWS VLLM Container Image
 on:
   push:
     paths:
-      - configs/llama-3-3-70b-instruct/two-nodes-four-gpus/docker/**
+      - configs/vllm-image/**
       - .github/workflows/build-lws-vllm-image.yaml
   workflow_dispatch:
 
@@ -48,8 +48,8 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
-        context: configs/llama-3-3-70b-instruct/two-nodes-four-gpus/docker/
-        file: configs/llama-3-3-70b-instruct/two-nodes-four-gpus/docker/Dockerfile
+        context: configs/vllm-image/
+        file: configs/vllm-image/Dockerfile
         push: true
         tags: ${{ steps.tag.outputs.tags }}
         labels: ${{ steps.tag.outputs.labels }}
