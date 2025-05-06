@@ -5,7 +5,7 @@ set -x
 
 GOLANG_VERSION="1.23.4"
 KIND_VERSION="v0.26.0"
-K8S_VERSION="v1.32"
+K8S_VERSION="v1.33"
 export DEBIAN_FRONTEND=noninteractive
 
 function install_prereq_packages() {
@@ -58,7 +58,7 @@ function install_kind() {
     popd
 }
 
-function install_kubectl() {
+function install_kube_binaries() {
     # Install kubectl
     # Instructions inspired from: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
 
@@ -72,7 +72,7 @@ function install_kubectl() {
     sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list # helps tools such as command-not-found to work correctly
 
     sudo apt-get update || true
-    sudo apt-get install -y kubectl
+    sudo apt-get install -y kubelet kubeadm kubectl
 }
 
 function install_helm() {
@@ -139,8 +139,8 @@ install_docker)
 install_kind)
     install_kind
     ;;
-install_kubectl)
-    install_kubectl
+install_kube_binaries)
+    install_kube_binaries
     ;;
 install_helm)
     install_helm
@@ -164,14 +164,14 @@ all)
     install_prereq_packages
     install_docker
     install_kind
-    install_kubectl
+    install_kube_binaries
     install_helm
     install_nvidia_toolkit
     install_nvkind
     ;;
 help)
     set +x
-    echo "Usage: $0 [install_docker | install_kind | install_kubectl"
+    echo "Usage: $0 [install_docker | install_kind | install_kube_binaries"
     echo " | install_helm | install_nvidia_toolkit | all"
     echo " | install_nvkind | install_dotfiles | help"
     echo " | install_prereq_packages | check_driver_installation ]"
