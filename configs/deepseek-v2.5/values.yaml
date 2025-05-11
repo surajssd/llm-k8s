@@ -10,7 +10,7 @@ cli: "bash /vllm-workspace/examples/online_serving/multi-node-serving.sh leader
         --model deepseek-ai/DeepSeek-V2.5
         --tensor-parallel-size 8
         --pipeline-parallel-size 2
-        --enable-prefix-cachin
+        --enable-prefix-caching
         --max-model-len 8192
         --enforce-eager
         --trust-remote-code"
