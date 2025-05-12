@@ -61,8 +61,10 @@ spec:
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
+          {{- if .Values.storage.enabled }}
           - name: model
             mountPath: /root/.cache/huggingface
+          {{- end }}
         - name: openwebui
           image: {{ .Values.images.openwebui }}
           ports:
@@ -83,10 +85,12 @@ spec:
         - name: shm
           emptyDir:
             medium: Memory
+        {{- if .Values.storage.enabled }}
         - name: model
           hostPath:
-            path: /mnt/model
+            path: {{ .Values.storage.hostPath }}
             type: DirectoryOrCreate
+        {{- end }}
         # This is done so that the pods don't land on the same machine.
         affinity:
           podAntiAffinity:
@@ -143,16 +147,20 @@ spec:
           volumeMounts:
           - name: shm
             mountPath: /dev/shm
+          {{- if .Values.storage.enabled }}
           - name: model
             mountPath: /root/.cache/huggingface
+          {{- end }}
         volumes:
         - name: shm
           emptyDir:
             medium: Memory
+        {{- if .Values.storage.enabled }}
         - name: model
           hostPath:
-            path: /mnt/model
+            path: {{ .Values.storage.hostPath }}
             type: DirectoryOrCreate
+        {{- end }}
         affinity:
           podAntiAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:

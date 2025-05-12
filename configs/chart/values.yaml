@@ -19,3 +19,7 @@ resources:
 cli: ""
 
 huggingFaceToken: false
+
+storage:
+  enabled: false
+  hostPath: /mnt/model
