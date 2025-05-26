@@ -24,9 +24,6 @@ function deploy_aks() {
 }
 
 function add_nodepool() {
-    az extension add --name aks-preview || true
-    az extension update --name aks-preview || true
-
     aks_infiniband_support="az feature show \
         --namespace "Microsoft.ContainerService" \
         --name AKSInfinibandSupport -o tsv --query 'properties.state'"
@@ -44,7 +41,7 @@ function add_nodepool() {
         --cluster-name "${CLUSTER_NAME}" \
         --node-count "${NODE_POOL_NODE_COUNT}" \
         --node-vm-size "${NODE_POOL_VM_SIZE}" \
-        --skip-gpu-driver-install \
+        --gpu-driver none \
         --node-osdisk-size "${NODE_POOL_VM_DISK_SIZE}"
 }
 
