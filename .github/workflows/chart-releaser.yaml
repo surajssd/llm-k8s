@@ -1,0 +1,25 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - .github/workflows/chart-releaser.yaml
+    - scripts/hack/chart-releaser.sh
+    - configs/chart/**
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Go
+      uses: actions/setup-go@v5
+    - name: Run Chart Releaser
+      run: ./scripts/hack/chart-releaser.sh --charts-dir configs --owner surajssd --repo llm-k8s --skip-existing
+      env:
+        CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
