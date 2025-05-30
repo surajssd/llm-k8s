@@ -10,7 +10,7 @@ distributed:
     # NCCL_IB_HCA: "^mlx5_8" # Exclude mlx5_8 (Ethernet)
 
 images:
-  vLLM: ghcr.io/surajssd/llm-k8s/vllm:0.8.5
+  vLLM: ghcr.io/surajssd/llm-k8s/vllm:0.9.0
   openwebui: ghcr.io/open-webui/open-webui:0.6.11
 
 resources:
