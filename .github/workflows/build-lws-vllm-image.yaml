@@ -2,9 +2,11 @@ name: Build & Push LWS VLLM Container Image
 
 on:
   push:
+    branches:
+    - main
     paths:
-      - configs/vllm-image/**
-      - .github/workflows/build-lws-vllm-image.yaml
+    - configs/vllm-image/**
+    - .github/workflows/build-lws-vllm-image.yaml
   workflow_dispatch:
 
 jobs:

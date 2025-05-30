@@ -2,9 +2,11 @@ name: Build & Push DOCA OFED Container Image
 
 on:
   push:
+    branches:
+    - main
     paths:
-      - scripts/network-operator/Dockerfile
-      - .github/workflows/doca-ofed-container-image.yaml
+    - scripts/network-operator/Dockerfile
+    - .github/workflows/doca-ofed-container-image.yaml
   workflow_dispatch:
 
 jobs:

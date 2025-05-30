@@ -2,9 +2,11 @@ name: Build & Push VLLM Benchmark Container Image
 
 on:
   push:
+    branches:
+    - main
     paths:
-      - benchmark/vllm_upstream/docker/**
-      - .github/workflows/build-vllm-benchmark-image.yaml
+    - benchmark/vllm_upstream/docker/**
+    - .github/workflows/build-vllm-benchmark-image.yaml
   workflow_dispatch:
 
 jobs:
