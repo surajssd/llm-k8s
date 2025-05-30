@@ -6,13 +6,16 @@
                 "ghcr.io/surajssd/llm-k8s/vllm:(?<currentValue>\\d+\\.\\d+\\.\\d+)",
                 "ghcr.io/surajssd/llm-k8s/vllm-benchmark:(?<currentValue>\\d+\\.\\d+\\.\\d+)",
                 "vllm/vllm-openai:v(?<currentValue>\\d+\\.\\d+\\.\\d+)",
-                "VLLM_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+                "VLLM_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)",
+                "type=raw,value=(?<currentValue>\\d+\\.\\d+\\.\\d+)"
             ],
             "fileMatch": [
                 "configs/chart/values.yaml",
                 "configs/vllm-image/Dockerfile",
                 "benchmark/vllm_upstream/k8s/deployment.yaml",
-                "benchmark/vllm_upstream/docker/Dockerfile"
+                "benchmark/vllm_upstream/docker/Dockerfile",
+                ".github/workflows/build-lws-vllm-image.yaml",
+                ".github/workflows/build-vllm-benchmark-image.yaml"
             ],
             "depNameTemplate": "vllm/vllm-openai",
             "datasourceTemplate": "docker"
