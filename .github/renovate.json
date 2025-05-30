@@ -19,6 +19,16 @@
             ],
             "depNameTemplate": "vllm/vllm-openai",
             "datasourceTemplate": "docker"
+        },
+        {
+            "matchStrings": [
+                "ghcr.io/open-webui/open-webui:(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+            ],
+            "fileMatch": [
+                "configs/chart/values.yaml"
+            ],
+            "depNameTemplate": "ghcr.io/open-webui/open-webui",
+            "datasourceTemplate": "docker"
         }
     ]
 }
