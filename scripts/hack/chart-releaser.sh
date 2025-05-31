@@ -280,7 +280,7 @@ install_chart_releaser() {
         go mod download
         go install ./...
         popd
-        cp $GOBIN/CR $install_dir/cr
+        cp /home/runner/go/bin/cr $install_dir/cr
     fi
 
     echo 'Adding cr directory to PATH...'
@@ -288,9 +288,12 @@ install_chart_releaser() {
 }
 
 lookup_latest_tag() {
-    git fetch --tags >/dev/null 2>&1
+    git fetch --tags
 
-    if ! git describe --tags --abbrev=0 HEAD~ 2>/dev/null; then
+    # Find if there are any tags in the repo, if there are then use the latest one.
+    if git tag -l --sort=-creatordate | head -n 1 >/dev/null; then
+        git tag -l --sort=-creatordate | head -n 1
+    elif ! git describe --tags --abbrev=0 HEAD~; then
         git rev-list --max-parents=0 --first-parent HEAD
     fi
 }
