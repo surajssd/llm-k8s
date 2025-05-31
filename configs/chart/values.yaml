@@ -1,5 +1,7 @@
 single:
   enabled: false
+  env:
+    # NCCL_DEBUG: INFO
 
 distributed:
   enabled: false

@@ -1,12 +1,13 @@
 single:
   enabled: true
+  env:
+    VLLM_DISABLE_COMPILE_CACHE: "1"
 
 resources:
   nvidia.com/gpu: "8"
 
 # Source: https://blog.vllm.ai/2025/04/05/llama4.html#:~:text=Maverick%20(up%20to%20~430K%20context)%3A
-cli: "VLLM_DISABLE_COMPILE_CACHE=1
-      vllm serve meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
+cli: "vllm serve meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
       --tensor-parallel-size 8
       --kv-cache-dtype fp8
       --max-model-len 430000"

@@ -1,12 +1,13 @@
 single:
   enabled: true
+  env:
+    VLLM_DISABLE_COMPILE_CACHE: "1"
 
 resources:
   nvidia.com/gpu: "4"
 
 # Source: https://blog.vllm.ai/2025/04/05/llama4.html#:~:text=Scout%20(up%20to%201M%20context)%3A
-cli: "VLLM_DISABLE_COMPILE_CACHE=1
-      vllm serve meta-llama/Llama-4-Scout-17B-16E-Instruct
+cli: "vllm serve meta-llama/Llama-4-Scout-17B-16E-Instruct
       --tensor-parallel-size 4
       --max-model-len 8192
       --override-generation-config='{\"attn_temperature_tuning\": true}'"
