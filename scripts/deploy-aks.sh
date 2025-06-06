@@ -41,8 +41,7 @@ function add_nodepool() {
         --cluster-name "${CLUSTER_NAME}" \
         --node-count "${NODE_POOL_NODE_COUNT}" \
         --node-vm-size "${NODE_POOL_VM_SIZE}" \
-        --gpu-driver none \
-        --node-osdisk-size "${NODE_POOL_VM_DISK_SIZE}"
+        --node-osdisk-size "${NODE_POOL_VM_DISK_SIZE}" "$@"
 }
 
 function download_aks_credentials() {
@@ -249,7 +248,7 @@ deploy_aks)
     deploy_aks
     ;;
 add_nodepool)
-    add_nodepool
+    add_nodepool "${@:2}"
     ;;
 download_aks_credentials)
     download_aks_credentials
@@ -269,7 +268,7 @@ install_lws_controller)
 all)
     deploy_aks
     download_aks_credentials
-    add_nodepool
+    add_nodepool --gpu-driver=none
     install_kube_prometheus
     install_lws_controller
 
