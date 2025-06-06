@@ -1,0 +1,7 @@
+single:
+  enabled: true
+
+resources:
+  nvidia.com/gpu: "2"
+
+cli: "sleep inf"

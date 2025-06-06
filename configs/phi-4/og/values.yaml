@@ -1,5 +1,8 @@
 single:
   enabled: true
+  env:
+    HF_ENDPOINT: http://olah.olah:18090
+    HF_HUB_ENABLE_HF_TRANSFER: "False"
 
 resources:
   # This is a 14.7B model so needs ~30GB of GPU memory. So a A100 of 40GB or
