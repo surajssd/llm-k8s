@@ -93,7 +93,8 @@ function install_kube_prometheus() {
         -n monitoring \
         --create-namespace \
         kube-prometheus \
-        prometheus-community/kube-prometheus-stack"
+        prometheus-community/kube-prometheus-stack \
+        --set prometheus.prometheusSpec.maximumStartupDurationSeconds=60"
 
     # If you don't retry then it could fail with errors like:
     # Error: create: failed to create: Post "https://foobar.southcentralus.azmk8s.io:443/api/v1/namespaces/monitoring/secrets": remote error: tls: bad record MAC
