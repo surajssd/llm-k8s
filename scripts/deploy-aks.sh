@@ -157,6 +157,10 @@ function install_gpu_operator() {
     eval "${gpu_on_nodes_cmd}"
 }
 
+function install_nvidia_gpu_device_plugin() {
+    kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/refs/heads/main/deployments/static/nvidia-device-plugin.yml
+}
+
 function install_network_operator() {
     kubectl create ns "${NETWORK_OPERATOR_NS}" || true
     kubectl label --overwrite ns "${NETWORK_OPERATOR_NS}" pod-security.kubernetes.io/enforce=privileged
@@ -276,6 +280,14 @@ all)
     # also installs service monitors CR and those are only available after
     # prometheus stack is installed.
     install_gpu_operator
+    ;;
+all_fast)
+    deploy_aks
+    download_aks_credentials
+    add_nodepool
+    install_kube_prometheus
+    install_lws_controller
+    install_nvidia_gpu_device_plugin
     ;;
 # Show help when using help or -h or --help
 help | -h | --help)
