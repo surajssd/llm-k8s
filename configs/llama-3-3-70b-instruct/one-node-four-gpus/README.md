@@ -13,7 +13,7 @@ export NODE_POOL_NODE_COUNT=1
 Now run the following command to deploy AKS:
 
 ```bash
-./scripts/deploy-aks.sh
+./scripts/deploy-aks.sh all_fast
 ```
 
 ## Deploy LLM
@@ -47,6 +47,18 @@ helm upgrade -i llama-3-3-70b-instruct \
 ```
 
 ## Access the model
+
+### Testing the model using OpenWebUI
+
+Create a port-forward so that you can access the openwebui locally:
+
+```bash
+kubectl port-forward svc/llama-3-3-70b-instruct 8080
+```
+
+Then open your browser and go to [http://localhost:8080](http://localhost:8080).
+
+### Testing the model using curl
 
 Create a port-forward so that you can access the model locally:
 
