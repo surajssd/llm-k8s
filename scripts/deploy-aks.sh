@@ -159,6 +159,30 @@ function install_gpu_operator() {
 
 function install_nvidia_gpu_device_plugin() {
     kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/refs/heads/main/deployments/static/nvidia-device-plugin.yml
+
+    label="name=nvidia-device-plugin-ds"
+
+    echo "⏳ Waiting for all pods with label ${label} in namespace kube-system to be in 'Running' phase..."
+
+    while true; do
+        pods_json=$(kubectl get pods -n kube-system -l "${label}" -o json)
+
+        total=$(echo "${pods_json}" | jq '.items | length')
+        running=$(echo "${pods_json}" | jq '[.items[] | select(.status.phase == "Running")] | length')
+
+        if [ "${total}" -eq "${running}" ] && [ "${total}" -ne 0 ]; then
+            echo "✅ All ${total} pods are in 'Running' state."
+            break
+        else
+            echo "⏳ Waiting for nvidia-device-plugin, ${running}/${total} pods running..."
+            sleep 5
+        fi
+    done
+
+    echo -e '\n🤖 GPUs on nodes:\n'
+    gpu_on_nodes_cmd="kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, \"nvidia.com/gpu\": .status.allocatable[\"nvidia.com/gpu\"]}'"
+    echo "$ ${gpu_on_nodes_cmd}"
+    eval "${gpu_on_nodes_cmd}"
 }
 
 function install_network_operator() {
