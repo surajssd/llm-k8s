@@ -1,0 +1,30 @@
+single:
+  enabled: true
+  env:
+    LMCACHE_LOCAL_CPU: "True"
+    LMCACHE_MAX_LOCAL_CPU_SIZE: "125"
+    LMCACHE_USE_EXPERIMENTAL: "True"
+    VLLM_RPC_TIMEOUT: "1000000"
+
+resources:
+  # This is a 70B model so needs ~140 GB of GPU memory.
+  nvidia.com/gpu: "4"
+
+images:
+  vLLM: quay.io/surajd/lmcache:v0.3.0
+
+cli: ". /opt/venv/bin/activate;
+        python3 -m vllm.entrypoints.openai.api_server
+        --model 'meta-llama/Llama-3.3-70B-Instruct'
+        --tensor-parallel-size 4
+        --pipeline-parallel-size 1
+        --distributed-executor-backend mp
+        --enable-prefix-caching
+        --kv-transfer-config
+        '{\"kv_connector\":\"LMCacheConnectorV1\",\"kv_role\":\"kv_both\"}'"
+
+huggingFaceToken: true
+
+storage:
+  enabled: true
+  hostPath: /models
