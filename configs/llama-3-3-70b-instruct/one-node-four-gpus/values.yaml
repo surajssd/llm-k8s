@@ -16,3 +16,4 @@ huggingFaceToken: true
 
 storage:
   enabled: true
+  hostPath: /models
