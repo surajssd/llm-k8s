@@ -1,0 +1,8 @@
+resources:
+- https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/refs/heads/main/deployments/static/nvidia-device-plugin.yml
+
+patches:
+- target:
+    kind: DaemonSet
+    name: nvidia-device-plugin-daemonset
+  path: patch.yaml

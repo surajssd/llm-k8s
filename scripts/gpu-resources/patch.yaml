@@ -1,0 +1,9 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-device-plugin-daemonset
+spec:
+  template:
+    spec:
+      nodeSelector:
+        accelerator: nvidia

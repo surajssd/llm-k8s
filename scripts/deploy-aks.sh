@@ -158,7 +158,8 @@ function install_gpu_operator() {
 }
 
 function install_nvidia_gpu_device_plugin() {
-    kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/refs/heads/main/deployments/static/nvidia-device-plugin.yml
+    GPU_RESOURCES_DIR="${SCRIPT_DIR}/gpu-resources"
+    kubectl apply -k ${GPU_RESOURCES_DIR}
 
     label="name=nvidia-device-plugin-ds"
 
@@ -178,6 +179,7 @@ function install_nvidia_gpu_device_plugin() {
             sleep 5
         fi
     done
+    sleep 30 # Wait for the device plugin is ready and posts the GPU resources to the nodes.
 
     echo -e '\n🤖 GPUs on nodes:\n'
     gpu_on_nodes_cmd="kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, \"nvidia.com/gpu\": .status.allocatable[\"nvidia.com/gpu\"]}'"
@@ -292,6 +294,9 @@ install_network_operator)
     ;;
 install_lws_controller)
     install_lws_controller
+    ;;
+install_nvidia_gpu_device_plugin)
+    install_nvidia_gpu_device_plugin
     ;;
 all)
     deploy_aks
