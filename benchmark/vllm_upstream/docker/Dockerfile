@@ -1,4 +1,7 @@
-FROM vllm/vllm-openai:v0.9.1
+# Once vLLM moves to Ubuntu 24.04, we can use the vLLM image again.
+# FROM vllm/vllm-openai:v0.9.1
+
+FROM nvcr.io/nvidia/tritonserver:25.01-py3-sdk
 
 ENV VLLM_VERSION=0.9.1 \
     VLLM_CODE="/root/vllm" \
@@ -25,7 +28,8 @@ RUN pip install \
     tabulate \
     pandas \
     datasets \
-    genai-perf \
     git+https://github.com/neuralmagic/guidellm.git \
     notebook && \
     apt-get update && apt-get -y install jq
+
+WORKDIR /root
