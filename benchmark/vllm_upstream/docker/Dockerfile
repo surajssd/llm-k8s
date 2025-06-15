@@ -26,5 +26,6 @@ RUN pip install \
     pandas \
     datasets \
     genai-perf \
-    git+https://github.com/neuralmagic/guidellm.git && \
+    git+https://github.com/neuralmagic/guidellm.git \
+    notebook && \
     apt-get update && apt-get -y install jq
