@@ -22,7 +22,9 @@ spec:
         command: ["/bin/bash"]
         args:
         - -c
-        - echo -n "Run the following command:\nbash /root/benchmark/run_vllm_upstream_benchmark.sh\nSleeping now..." && sleep infinity
+        - jupyter notebook --allow-root --ip 0.0.0.0 --port 8888
+        ports:
+        - containerPort: 8888
         env:
         - name: HF_TOKEN
           valueFrom:
