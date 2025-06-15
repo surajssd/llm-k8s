@@ -21,5 +21,10 @@ RUN TMP_DIR=$(mktemp -d) && \
 COPY *  /root/scripts/
 
 # Install pip & other dependencies
-RUN pip install tabulate pandas datasets && \
+RUN pip install \
+    tabulate \
+    pandas \
+    datasets \
+    genai-perf \
+    git+https://github.com/neuralmagic/guidellm.git && \
     apt-get update && apt-get -y install jq
