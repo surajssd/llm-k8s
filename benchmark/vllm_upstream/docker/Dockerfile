@@ -29,7 +29,8 @@ RUN pip install \
     pandas \
     datasets \
     git+https://github.com/neuralmagic/guidellm.git \
-    notebook && \
+    notebook \
+    vllm && \
     apt-get update && apt-get -y install jq
 
 WORKDIR /root
