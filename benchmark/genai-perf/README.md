@@ -68,6 +68,20 @@ Once inside the pod, run the benchmark command:
 bash /root/scripts/genai-perf-runner.sh
 ```
 
+Since the above script also generates the plots, you can find those images in the `plots` folder of each benchmark run like this:
+
+```bash
+# ls genai-perf-results/artifacts/meta-llama_Llama-3.3-70B-Instruct-openai-chat-concurrency250/plots/
+config.yaml                                                             time_to_first_token.html
+distribution_of_input_sequence_lengths_to_output_sequence_lengths.gzip  time_to_first_token.jpeg
+distribution_of_input_sequence_lengths_to_output_sequence_lengths.html  time_to_first_token_vs_input_sequence_lengths.gzip
+distribution_of_input_sequence_lengths_to_output_sequence_lengths.jpeg  time_to_first_token_vs_input_sequence_lengths.html
+request_latency.gzip                                                    time_to_first_token_vs_input_sequence_lengths.jpeg
+request_latency.html                                                    token-to-token_latency_vs_output_token_position.gzip
+request_latency.jpeg                                                    token-to-token_latency_vs_output_token_position.html
+time_to_first_token.gzip                                                token-to-token_latency_vs_output_token_position.jpeg
+```
+
 ## Jupyter Notebook
 
 Port forward the Jupyter Notebook pod:
@@ -79,3 +93,7 @@ kubectl -n vllm-benchmark port-forward pod/${POD_NAME} 8888
 Now you can access the Jupyter Notebook at [http://localhost:8888](http://localhost:8888).
 
 Once inside the Jupyter Notebook, navigate to the `scripts` folder and open `genai-perf-plot.ipynb` and run the cells to visualize the benchmark results.
+
+You can see the results like these:
+
+![Benchmark Results](results.png)
