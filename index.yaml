@@ -3,6 +3,16 @@ entries:
   llm-k8s:
   - apiVersion: v2
     appVersion: 0.1.1
+    created: "2025-06-16T20:24:45.530474141Z"
+    description: A Helm chart for deploying LLMs on Kubernetes
+    digest: 0c64d1fa130131d017abd7c705e3a3dd3c328b8988fce6cf5bd30365c92e9415
+    name: llm-k8s
+    type: application
+    urls:
+    - https://github.com/surajssd/llm-k8s/releases/download/llm-k8s-0.1.3/llm-k8s-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 0.1.1
     created: "2025-05-28T23:52:11.780942-07:00"
     description: A Helm chart for deploying LLMs on Kubernetes
     digest: 2ab961080e0ed1f057ae8ec531f98972108c35da1072708954f3371bbcbe8cad
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/surajssd/llm-k8s/releases/download/llm-k8s-0.1.0/llm-k8s-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-28T23:52:11.780965-07:00"
+generated: "2025-06-16T20:24:45.530483488Z"
