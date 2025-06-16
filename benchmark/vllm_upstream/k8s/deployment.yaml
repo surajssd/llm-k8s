@@ -31,28 +31,6 @@ spec:
             secretKeyRef:
               name: hf-token-secret
               key: token
-        - name: TEST_SERVER_URL
-          valueFrom:
-            configMapKeyRef:
-              name: benchmark-runner
-              key: TEST_SERVER_URL
-        - name: MODEL_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: benchmark-runner
-              key: MODEL_NAME
-        - name: TENSOR_PARALLEL_SIZE
-          valueFrom:
-            configMapKeyRef:
-              name: benchmark-runner
-              key: TENSOR_PARALLEL_SIZE
-        - name: PIPELINE_PARALLEL_SIZE
-          valueFrom:
-            configMapKeyRef:
-              name: benchmark-runner
-              key: PIPELINE_PARALLEL_SIZE
-        - name: GPU_VM_SKU
-          valueFrom:
-            configMapKeyRef:
-              name: benchmark-runner
-              key: GPU_VM_SKU
+        envFrom:
+        - configMapRef:
+            name: benchmark-runner
