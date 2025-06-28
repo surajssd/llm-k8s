@@ -3,6 +3,10 @@
 set -euo pipefail
 
 RESULTS="/root/genai-perf-results"
+PLOTS="${RESULTS}/artifacts/plots"
+mkdir -p "$PLOTS"
+
+: "${TEST_METRICS_URL:=${TEST_SERVER_URL}/metrics}"
 
 declare -A useCases
 
@@ -17,39 +21,40 @@ runBenchmark() {
     local lengths="${useCases[$description]}"
     IFS='/' read -r inputLength outputLength <<<"$lengths"
 
-    echo "Running genAI-perf for $description with input length $inputLength and output length $outputLength"
+    echo "⏳ Running genAI-perf for $description with input length $inputLength and output length $outputLength"
     #Runs
     for concurrency in 1 2 5 10 50 100 250; do
+        echo "⏳ Running with concurrency $concurrency"
         local INPUT_SEQUENCE_LENGTH=$inputLength
         local INPUT_SEQUENCE_STD=0
         local OUTPUT_SEQUENCE_LENGTH=$outputLength
         local CONCURRENCY=$concurrency
 
         genai-perf profile \
-            -m $MODEL_NAME \
+            -m "$MODEL_NAME" \
             --endpoint-type chat \
-            --service-kind openai \
             --streaming \
-            --url $TEST_SERVER_URL \
-            --extra-inputs max_tokens:$OUTPUT_SEQUENCE_LENGTH \
-            --extra-inputs min_tokens:$OUTPUT_SEQUENCE_LENGTH \
+            --server-metrics-url "$TEST_METRICS_URL" \
+            --url "$TEST_SERVER_URL" \
+            --extra-inputs "max_tokens:$OUTPUT_SEQUENCE_LENGTH" \
+            --extra-inputs "min_tokens:$OUTPUT_SEQUENCE_LENGTH" \
             --extra-inputs ignore_eos:true \
-            --output-tokens-mean $OUTPUT_SEQUENCE_LENGTH \
-            --synthetic-input-tokens-mean $INPUT_SEQUENCE_LENGTH \
-            --synthetic-input-tokens-stddev $INPUT_SEQUENCE_STD \
-            --generate-plots \
-            --concurrency $CONCURRENCY \
-            --profile-export-file ${INPUT_SEQUENCE_LENGTH}_${OUTPUT_SEQUENCE_LENGTH}.json \
+            --output-tokens-mean "$OUTPUT_SEQUENCE_LENGTH" \
+            --synthetic-input-tokens-mean "$INPUT_SEQUENCE_LENGTH" \
+            --synthetic-input-tokens-stddev "$INPUT_SEQUENCE_STD" \
+            --concurrency "$CONCURRENCY" \
+            --profile-export-file "${INPUT_SEQUENCE_LENGTH}_${OUTPUT_SEQUENCE_LENGTH}.json" \
             --measurement-interval 20000 \
-            --tokenizer $MODEL_NAME \
+            --tokenizer "$MODEL_NAME" \
             --tokenizer-trust-remote-code \
             -- \
             -v \
             --max-threads=256
+
+        echo "✅ Completed benchmark for $description with concurrency $concurrency"
     done
 }
 
-mkdir -p "$RESULTS"
 pushd "$RESULTS"
 
 # Iterate over all defined use cases and run the benchmark script for each
