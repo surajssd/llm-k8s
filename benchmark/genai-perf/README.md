@@ -12,7 +12,7 @@ Now create the configmap with [run_vllm_upstream_benchmark.sh](run_vllm_upstream
 
 ```bash
 kubectl -n vllm-benchmark create configmap benchmark-runner \
-    --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct-leader.default:8000" \
+    --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct.default:8000" \
     --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct"
 ```
 
@@ -65,7 +65,7 @@ kubectl -n vllm-benchmark \
 Once inside the pod, run the benchmark command:
 
 ```bash
-bash /root/scripts/genai-perf-runner.sh
+/root/scripts/genai-perf-runner.sh
 ```
 
 Since the above script also generates the plots, you can find those images in the `plots` folder of each benchmark run like this:
