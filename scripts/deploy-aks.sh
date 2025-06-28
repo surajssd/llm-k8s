@@ -111,8 +111,8 @@ function install_gpu_operator() {
     kubectl create ns "${gpu_operator_ns}" || true
     kubectl label --overwrite ns "${gpu_operator_ns}" pod-security.kubernetes.io/enforce=privileged
 
-    helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
-    helm repo update
+    helm repo add nvidia https://helm.ngc.nvidia.com/nvidia >/dev/null
+    helm repo update >/dev/null
 
     # See if NFD is already deployed. This means that the network operator was deployed before.
     NFD_PODS_COUNT="$(kubectl get pods \
@@ -133,26 +133,19 @@ function install_gpu_operator() {
         nvidia/gpu-operator \
         --set dcgmExporter.serviceMonitor.enabled="true" ${HELM_CHART_FLAGS}
 
-    cuda_validator_label="app=nvidia-cuda-validator"
-
-    echo "⏳ Waiting for all pods with label $cuda_validator_label in namespace $gpu_operator_ns to complete..."
     while true; do
-        pods_json=$(kubectl get pods -n "$gpu_operator_ns" -l "$cuda_validator_label" -o json)
-
-        total=$(echo "${pods_json}" | jq '.items | length')
-        succeeded=$(echo "${pods_json}" | jq '[.items[] | select(.status.phase == "Succeeded")] | length')
-
-        if [ "${total}" -eq "${succeeded}" ] && [ "${total}" -ne 0 ]; then
-            echo "✅ All ${total} pods have completed successfully."
+        gpu_cluster_policy_state=$(kubectl get clusterpolicies cluster-policy -o jsonpath='{.status.state}')
+        if [[ "${gpu_cluster_policy_state}" == "ready" ]]; then
+            echo "✅ GPU Operator is successfully installed."
             break
-        else
-            echo "⏳ Waiting for nvidia-cuda-validator, ${succeeded}/${total} pods completed..."
-            sleep 5
         fi
+
+        echo "⏳ Waiting for GPU Operator to be ready..."
+        sleep 5
     done
 
     echo -e '\n🤖 GPUs on nodes:\n'
-    gpu_on_nodes_cmd="kubectl get nodes -o json | jq -r '.items[] | {name: .metadata.name, \"nvidia.com/gpu\": .status.allocatable[\"nvidia.com/gpu\"]}'"
+    gpu_on_nodes_cmd="kubectl get nodes -l accelerator=nvidia -o json | jq -r '.items[] | {name: .metadata.name, \"nvidia.com/gpu\": .status.allocatable[\"nvidia.com/gpu\"]}'"
     echo "$ ${gpu_on_nodes_cmd}"
     eval "${gpu_on_nodes_cmd}"
 }
