@@ -26,7 +26,7 @@ runBenchmark() {
         local CONCURRENCY=$concurrency
 
         genai-perf profile \
-            -m $MODEL \
+            -m $MODEL_NAME \
             --endpoint-type chat \
             --service-kind openai \
             --streaming \
@@ -41,7 +41,7 @@ runBenchmark() {
             --concurrency $CONCURRENCY \
             --profile-export-file ${INPUT_SEQUENCE_LENGTH}_${OUTPUT_SEQUENCE_LENGTH}.json \
             --measurement-interval 20000 \
-            --tokenizer $MODEL \
+            --tokenizer $MODEL_NAME \
             --tokenizer-trust-remote-code \
             -- \
             -v \
