@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-RESULTS="/root/genai-perf-results"
-PLOTS="${RESULTS}/artifacts/plots"
+: "${GENAI_PERF_ROOT_DIR:=/root/genai-perf-results}"
+PLOTS="${GENAI_PERF_ROOT_DIR}/plots"
 mkdir -p "$PLOTS"
 
 : "${TEST_METRICS_URL:=${TEST_SERVER_URL}/metrics}"
@@ -42,6 +42,7 @@ runBenchmark() {
             --output-tokens-mean "$OUTPUT_SEQUENCE_LENGTH" \
             --synthetic-input-tokens-mean "$INPUT_SEQUENCE_LENGTH" \
             --synthetic-input-tokens-stddev "$INPUT_SEQUENCE_STD" \
+            --artifact-dir "$GENAI_PERF_ROOT_DIR" \
             --concurrency "$CONCURRENCY" \
             --profile-export-file "${INPUT_SEQUENCE_LENGTH}_${OUTPUT_SEQUENCE_LENGTH}.json" \
             --measurement-interval 20000 \
@@ -55,7 +56,7 @@ runBenchmark() {
     done
 }
 
-pushd "$RESULTS"
+pushd "$GENAI_PERF_ROOT_DIR"
 
 # Iterate over all defined use cases and run the benchmark script for each
 for description in "${!useCases[@]}"; do

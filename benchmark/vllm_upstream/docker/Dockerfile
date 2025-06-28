@@ -31,6 +31,7 @@ RUN pip install \
     git+https://github.com/neuralmagic/guidellm.git \
     notebook \
     vllm && \
-    apt-get update && apt-get -y install jq
+    apt-get update && \
+    apt-get -y install jq tree
 
 WORKDIR /root

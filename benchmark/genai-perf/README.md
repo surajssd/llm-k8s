@@ -8,14 +8,6 @@ First create the namespace:
 kubectl create ns vllm-benchmark
 ```
 
-Now create the configmap with [run_vllm_upstream_benchmark.sh](run_vllm_upstream_benchmark.sh) and other values in it:
-
-```bash
-kubectl -n vllm-benchmark create configmap benchmark-runner \
-    --from-literal=TEST_SERVER_URL="http://llama-3-3-70b-instruct.default:8000" \
-    --from-literal=MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct"
-```
-
 Let's create a Kubernetes secret with hugging token. First get the token by going [here](https://huggingface.co/settings/tokens). You only need a "Read" token. Copy and export the token as an environment variable:
 
 ```bash
@@ -62,7 +54,15 @@ kubectl -n vllm-benchmark \
     -- bash
 ```
 
-Once inside the pod, run the benchmark command:
+Once inside the pod, export the following environment variables:
+
+```bash
+export TEST_SERVER_URL="http://llama-3-3-70b-instruct.default:8000"
+export MODEL_NAME="meta-llama/Llama-3.3-70B-Instruct"
+export GENAI_PERF_ROOT_DIR="/root/perf/vllm-single-tp4-pp1"
+```
+
+Start the benchmark runner script:
 
 ```bash
 /root/scripts/genai-perf-runner.sh
@@ -84,16 +84,14 @@ time_to_first_token.gzip                                                token-to
 
 ## Jupyter Notebook
 
-Port forward the Jupyter Notebook pod:
+Port forward the Jupyter Notebook port:
 
 ```bash
 kubectl -n vllm-benchmark port-forward pod/${POD_NAME} 8888
 ```
 
-Now you can access the Jupyter Notebook at [http://localhost:8888](http://localhost:8888).
+Now you can access the Jupyter Notebook at [http://127.0.0.1:8888/tree](http://127.0.0.1:8888/tree).
 
-Once inside the Jupyter Notebook, navigate to the `scripts` folder and open `genai-perf-plot.ipynb` and run the cells to visualize the benchmark results.
-
-You can see the results like these:
+Once inside the Jupyter Notebook, navigate to the `scripts` folder and open `genai-perf-plot.ipynb` and follow the instructions and run the cells to visualize the benchmark results. You can see the results like these:
 
 ![Benchmark Results](results.png)

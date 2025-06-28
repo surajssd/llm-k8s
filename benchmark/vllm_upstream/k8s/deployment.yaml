@@ -22,7 +22,12 @@ spec:
         command: ["/bin/bash"]
         args:
         - -c
-        - jupyter notebook --allow-root --ip 0.0.0.0 --port 8888
+        - jupyter notebook
+          --allow-root
+          --ip 0.0.0.0
+          --port 8888
+          --no-browser
+          --ServerApp.token=""
         ports:
         - containerPort: 8888
         env:
@@ -31,6 +36,3 @@ spec:
             secretKeyRef:
               name: hf-token-secret
               key: token
-        envFrom:
-        - configMapRef:
-            name: benchmark-runner
