@@ -32,6 +32,6 @@ RUN pip install \
     notebook \
     vllm && \
     apt-get update && \
-    apt-get -y install jq tree
+    apt-get -y install jq tree tmux
 
 WORKDIR /root
