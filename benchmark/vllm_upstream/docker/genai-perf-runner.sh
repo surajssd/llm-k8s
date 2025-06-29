@@ -6,7 +6,10 @@ set -euo pipefail
 PLOTS="${GENAI_PERF_ROOT_DIR}/plots"
 mkdir -p "$PLOTS"
 
-: "${TEST_METRICS_URL:=${TEST_SERVER_URL}/metrics}"
+GENAI_ADDITIONAL_FLAGS=""
+if [[ -n "${TEST_METRICS_URL:-}" ]]; then
+    GENAI_ADDITIONAL_FLAGS="${GENAI_ADDITIONAL_FLAGS} --server-metrics-url ${TEST_METRICS_URL}"
+fi
 
 declare -A useCases
 
@@ -43,6 +46,7 @@ runBenchmark() {
             --synthetic-input-tokens-mean "$INPUT_SEQUENCE_LENGTH" \
             --synthetic-input-tokens-stddev "$INPUT_SEQUENCE_STD" \
             --artifact-dir "$GENAI_PERF_ROOT_DIR" \
+            --enable-checkpointing \
             --concurrency "$CONCURRENCY" \
             --profile-export-file "${INPUT_SEQUENCE_LENGTH}_${OUTPUT_SEQUENCE_LENGTH}.json" \
             --measurement-interval 20000 \
@@ -50,7 +54,7 @@ runBenchmark() {
             --tokenizer-trust-remote-code \
             -- \
             -v \
-            --max-threads=256
+            --max-threads=256 $GENAI_ADDITIONAL_FLAGS
 
         echo "✅ Completed benchmark for $description with concurrency $concurrency"
     done
