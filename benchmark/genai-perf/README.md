@@ -36,6 +36,8 @@ kubectl -n vllm-benchmark \
 
 ## Run Benchmarks
 
+### Get access to the benchmark pod
+
 Find the VLLM benchmark pod:
 
 ```bash
@@ -53,6 +55,8 @@ kubectl -n vllm-benchmark \
     exec -it $POD_NAME \
     -- bash
 ```
+
+### Start Benchmark Tests
 
 Once inside the pod, export the following environment variables:
 
@@ -80,6 +84,31 @@ request_latency.gzip                                                    time_to_
 request_latency.html                                                    token-to-token_latency_vs_output_token_position.gzip
 request_latency.jpeg                                                    token-to-token_latency_vs_output_token_position.html
 time_to_first_token.gzip                                                token-to-token_latency_vs_output_token_position.jpeg
+```
+
+### Download Results
+
+Run the following commands to download the benchmark results:
+
+```bash
+kubectl -n vllm-benchmark \
+    exec -it $POD_NAME \
+    -- bash -c "tar czf perf.tar.gz perf"
+
+kubectl cp -n vllm-benchmark \
+    "${POD_NAME}:/root/perf.tar.gz" "./perf.tar.gz"
+```
+
+## Visualize Results
+
+To visualize the benchmark results, you can see individual runs in the `perf` folder. Each run has a `genai-perf-plot.ipynb` Jupyter Notebook that you can use to visualize the results.
+
+Once inside the `perf` folder, run the following commands:
+
+```bash
+virtualenv venv
+source venv/bin/activate
+# TODO: pip install ...
 ```
 
 ## Jupyter Notebook
