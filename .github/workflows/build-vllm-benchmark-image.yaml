@@ -44,7 +44,7 @@ jobs:
         images: ghcr.io/surajssd/llm-k8s/vllm-benchmark
         tags: |
           type=raw,value=latest
-          type=raw,value=0.9.1
+          type=raw,value=0.9.2
           type=schedule,pattern={{date 'YYYYMMDD-hhmmss' tz='America/Los_Angeles'}}
 
     - name: Build and push
