@@ -18,7 +18,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v5
     - name: Setup Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
     - name: Configure Git
       run: |
         git config user.name "$GITHUB_ACTOR"
