@@ -1,4 +1,4 @@
-FROM vllm/vllm-openai:v0.10.1
+FROM vllm/vllm-openai:v0.10.2
 
 RUN pip install 'ray[default]' aiohttp_cors && \
     apt update && apt install -y iproute2 && \
