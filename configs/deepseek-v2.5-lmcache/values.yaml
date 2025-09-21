@@ -1,0 +1,35 @@
+distributed:
+  enabled: true
+
+images:
+  vLLM: lmcache/vllm-openai:2025-04-18
+
+cli: "bash /vllm-workspace/examples/online_serving/multi-node-serving.sh leader
+        --ray_cluster_size=$LWS_GROUP_SIZE
+        --dashboard-host=0.0.0.0
+        --metrics-export-port=8080;
+      sleep inf;
+      vllm serve deepseek-ai/DeepSeek-V2.5
+        --port 8000
+        --tensor-parallel-size 8
+        --pipeline-parallel-size 2
+        --enable-prefix-caching
+        --max-model-len 8192
+        --enforce-eager
+        --trust-remote-code
+        --kv-transfer-config '{\"kv_connector\":\"LMCacheConnector\",\"kv_role\":\"kv_both\"}';
+      sleep inf;
+      python3 -m vllm.entrypoints.openai.api_server
+        --port 8000
+        --model deepseek-ai/DeepSeek-V2.5
+        --tensor-parallel-size 8
+        --pipeline-parallel-size 2
+        --enable-prefix-caching
+        --max-model-len 8192
+        --enforce-eager
+        --trust-remote-code"
+
+resources:
+  nvidia.com/gpu: "8"
+  # # Enable IB.
+  # rdma/shared_ib: 1
