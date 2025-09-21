@@ -38,7 +38,7 @@ function check_hf_token() {
 
 function run_serving_tests() {
   # Generate the test name and replace the '/' with '-'
-  test_name=$(echo "serving_${MODEL_NAME}_tp${TENSOR_PARALLEL_SIZE}_pp${PIPELINE_PARALLEL_SIZE}_sharegpt" | tr '/' '-')
+  test_name=$(echo "${MODEL_NAME}_tp${TENSOR_PARALLEL_SIZE}_pp${PIPELINE_PARALLEL_SIZE}" | tr '/' '-')
 
   # Request rates to test
   qps_list=(01 04 16 inf)
@@ -68,14 +68,24 @@ function run_serving_tests() {
     popd
 
     # record the benchmarking commands
-    gpu_type="${GPU_VM_SKU} x ${PIPELINE_PARALLEL_SIZE}"
-    jq_output=$(jq -n \
-      --arg client "$client_command" \
-      --arg gpu_type "$gpu_type" \
-      '{
+    gpu_type="${GPU_VM_SKU}"
+    placement="tp${TENSOR_PARALLEL_SIZE}_pp${PIPELINE_PARALLEL_SIZE}"
+
+    jq_output=$(
+      jq -n \
+        --arg client "$client_command" \
+        --arg gpu_type "$gpu_type" \
+        --arg model "$MODEL_NAME" \
+        --arg qps "$qps" \
+        --arg placement "$placement" \
+        '{
           client_command: $client,
-          gpu_type: $gpu_type
-        }')
+          gpu_type: $gpu_type,
+          model: $model,
+          qps: $qps,
+          placement: $placement
+        }'
+    )
     echo "$jq_output" >"$RESULTS_FOLDER/${new_test_name}.commands"
 
   done

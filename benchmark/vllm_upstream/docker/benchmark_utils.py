@@ -241,3 +241,26 @@ def plot_everything(all_data, prefix):
         f"{prefix}: Request vs. TPS for all input/output pairs"
     )
     fig.show()
+
+    # Request vs. TTFT
+    fig = create_scatter_plot(
+        all_data,
+        DEFAULT_INPUT_OUTPUT,
+        'Request',
+        'TTFT',
+        "📊 Request / sec [higher is better]",
+        "⏱️ Time to first token (ms) [lower is better]",
+        f"{prefix}: Request vs. TTFT for all input/output pairs"
+    )
+    fig.show()
+
+    # Request vs. ITL
+    fig = create_scatter_plot(
+        all_data,
+        DEFAULT_INPUT_OUTPUT,
+        'Request',
+        'ITL',
+        "📊 Request / sec [higher is better]",
+        "⛓️ ITL (ms) [lower is better]",
+        f"{prefix}: Request vs. ITL for all input/output pairs"
+    )

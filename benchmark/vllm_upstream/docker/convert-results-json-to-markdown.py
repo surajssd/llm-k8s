@@ -41,6 +41,9 @@ serving_results = []
 serving_column_mapping = {
     "test_name": "Test name",
     "gpu_type": "GPU",
+    "model": "Model",
+    "qps": "QPS",
+    "placement": "Placement",
     "completed": "# of req.",
     "request_throughput": "Tput (req/s)",
     # "input_throughput": "Input Tput (tok/s)",
