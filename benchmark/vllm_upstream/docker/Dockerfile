@@ -30,7 +30,8 @@ RUN pip install \
     datasets \
     git+https://github.com/neuralmagic/guidellm.git \
     notebook \
-    vllm && \
+    vllm \
+    inference-perf && \
     apt-get update && \
     apt-get -y install jq tree tmux
 
