@@ -1,3 +1,16 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: benchmark-data-pvc
+  namespace: vllm-benchmark
+spec:
+  accessModes:
+  - ReadWriteMany
+  storageClassName: azurefile
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,3 +49,10 @@ spec:
             secretKeyRef:
               name: hf-token-secret
               key: token
+        volumeMounts:
+        - name: benchmark-data
+          mountPath: /root/benchmark-data
+      volumes:
+      - name: benchmark-data
+        persistentVolumeClaim:
+          claimName: benchmark-data-pvc
