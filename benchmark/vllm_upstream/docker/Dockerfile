@@ -31,7 +31,7 @@ RUN pip install \
     git+https://github.com/neuralmagic/guidellm.git \
     notebook \
     vllm \
-    inference-perf && \
+    git+https://github.com/kubernetes-sigs/inference-perf.git@main#egg=inference-perf[analysis] && \
     apt-get update && \
     apt-get -y install jq tree tmux
 
