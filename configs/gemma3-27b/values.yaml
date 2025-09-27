@@ -1,0 +1,14 @@
+single:
+  enabled: true
+
+resources:
+  # Model is 27b and bf16
+  nvidia.com/gpu: "1"
+
+# Source: https://huggingface.co/google/gemma-3-27b-it
+cli: "vllm serve google/gemma-3-27b-it
+      --tensor-parallel-size 1
+      --max-model-len 4096"
+
+huggingFaceToken: true
+
