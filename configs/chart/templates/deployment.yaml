@@ -20,11 +20,25 @@ spec:
       - name: shm
         emptyDir:
           medium: Memory
-      {{- if .Values.storage.enabled }}
+      {{- if .Values.storage.hostPath.enabled }}
       - name: model
         hostPath:
-          path: {{ .Values.storage.hostPath }}
+          path: {{ .Values.storage.hostPath.path }}
           type: DirectoryOrCreate
+      {{- end }}
+      {{- if .Values.storage.ephemeral.enabled }}
+      - name: model
+        ephemeral:
+          volumeClaimTemplate:
+            metadata:
+              labels:
+                type: model-storage
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              storageClassName: cns-nvmedisk
+              resources:
+                requests:
+                  storage: {{ .Values.storage.ephemeral.storage }}
       {{- end }}
       containers:
       - name: vllm
@@ -57,7 +71,7 @@ spec:
         volumeMounts:
         - name: shm
           mountPath: /dev/shm
-        {{- if .Values.storage.enabled }}
+        {{- if or .Values.storage.hostPath.enabled .Values.storage.ephemeral.enabled }}
         - name: model
           mountPath: /root/.cache/huggingface
         {{- end }}

@@ -23,5 +23,10 @@ cli: ""
 huggingFaceToken: false
 
 storage:
-  enabled: false
-  hostPath: /mnt/model
+  # Enable only one of the below storage options
+  hostPath:
+    enabled: false
+    path: /mnt/model
+  ephemeral:
+    enabled: false
+    storage: 1099511627776 # 1TB
