@@ -26,5 +26,6 @@ cli: ". /opt/venv/bin/activate;
 huggingFaceToken: true
 
 storage:
-  enabled: true
-  hostPath: /models
+  hostPath:
+    enabled: true
+    path: /models

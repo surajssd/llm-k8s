@@ -15,5 +15,6 @@ cli: "python3 -m vllm.entrypoints.openai.api_server
 huggingFaceToken: true
 
 storage:
-  enabled: true
-  hostPath: /models
+  hostPath:
+    enabled: true
+    path: /models
