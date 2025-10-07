@@ -61,34 +61,42 @@ kubectl -n vllm-benchmark \
 Once inside the pod, export the following environment variables:
 
 ```bash
-export TEST_SERVER_URL="http://gemma-3-27b.default:8000"
+# export TEST_SERVER_URL="http://gemma-3-27b.default:8000"
+export TEST_SERVER_URL="http://vllm-router-service.default"
 export MODEL_NAME="google/gemma-3-27b-it"
 ```
 
 Test if you can access the model:
 
 ```bash
-curl -X POST "${TEST_SERVER_URL}/v1/chat/completions"   -H "Content-Type: application/json"   --data '{
+curl -sN -X POST "${TEST_SERVER_URL}/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  --data '{
   "model": "'"${MODEL_NAME}"'",
   "messages": [
    {
     "role": "user",
     "content": "Explain the origin of Llama the animal?"
    }
-  ]
- }' | jq
+  ],
+  "stream": true
+ }' | while read -r line; do
+    [[ $line =~ ^data:\ (.*)$ && ${BASH_REMATCH[1]} != "[DONE]" ]] && \
+    printf '%b' "$(jq '.choices[0].delta.content // empty' <<< "${BASH_REMATCH[1]}" | sed 's/^"//;s/"$//')"
+done
 ```
 
 Create a config file for inference-perf:
 
 ```bash
 export BENCHMARK_DATA_PATH="/root/benchmark-data/gemma-3-27b-a100-80gb-vllm"
+export CONFIG_FILE="/tmp/$(basename $BENCHMARK_DATA_PATH)-config.yaml"
 ```
 
 Run the following command to create the config file:
 
 ```yaml
-cat <<EOF > /tmp/config.yaml
+cat <<EOF > $CONFIG_FILE
 api:
   type: completion
   streaming: true
@@ -122,7 +130,7 @@ EOF
 Start the benchmark run:
 
 ```bash
-inference-perf --config_file /tmp/config.yaml && \
+inference-perf --config_file $CONFIG_FILE && \
   inference-perf --analyze ${BENCHMARK_DATA_PATH}
 ```
 
