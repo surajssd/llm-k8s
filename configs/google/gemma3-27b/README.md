@@ -44,7 +44,7 @@ Deploy Kubernetes configs to run the model:
 
 ```bash
 helm upgrade -i gemma-3-27b \
-  --values configs/gemma3-27b/values.yaml \
+  --values configs/google/gemma3-27b/values.yaml \
   ./configs/chart
 ```
 
