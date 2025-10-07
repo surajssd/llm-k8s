@@ -22,7 +22,7 @@ Now run the following command to deploy AKS:
 
 ### Permission to use the model
 
-Get access to the model by accepting the terms here: <https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct>
+Get access to the model by accepting the terms here: <https://huggingface.co/google/gemma-3-27b-it>
 
 ### Huggingface Secret
 

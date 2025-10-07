@@ -8,7 +8,11 @@ resources:
 # Source: https://huggingface.co/google/gemma-3-27b-it
 cli: "vllm serve google/gemma-3-27b-it
       --tensor-parallel-size 1
-      --max-model-len 4096"
+      --max-model-len 16384"
 
 huggingFaceToken: true
 
+storage:
+  ephemeral:
+    enabled: true
+    storage: 214748364800 # 200GB
