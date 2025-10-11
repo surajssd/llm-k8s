@@ -1,0 +1,16 @@
+single:
+  enabled: true
+
+resources:
+  # Model is 30b and bf16
+  nvidia.com/gpu: "1"
+
+# Source: https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507
+cli: "vllm serve Qwen/Qwen3-30B-A3B-Instruct-2507
+      --tensor-parallel-size 1
+      --max-model-len 25000"
+
+storage:
+  ephemeral:
+    enabled: true
+    storage: 214748364800 # 200GB
