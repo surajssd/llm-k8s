@@ -1,0 +1,16 @@
+single:
+  enabled: true
+
+resources:
+  # Model is 32b and bf16
+  nvidia.com/gpu: "1"
+
+# Source: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+cli: "vllm serve deepseek-ai/DeepSeek-R1-Distill-Qwen-32B
+      --tensor-parallel-size 1
+      --max-model-len 25000"
+
+storage:
+  ephemeral:
+    enabled: true
+    storage: 214748364800 # 200GB
