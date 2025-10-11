@@ -12,3 +12,6 @@ benchmark/vllm_upstream/results/
 
 # Ignore the grafana dashboard files
 scripts/monitoring/dashboards/
+
+# AI model cache
+.claude/
