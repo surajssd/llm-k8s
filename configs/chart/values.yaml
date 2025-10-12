@@ -13,7 +13,7 @@ distributed:
 
 images:
   vLLM: ghcr.io/surajssd/llm-k8s/vllm:0.10.2
-  openwebui: ghcr.io/open-webui/open-webui:0.6.32
+  openwebui: ghcr.io/open-webui/open-webui:0.6.33
 
 resources:
   nvidia.com/gpu: "1"
