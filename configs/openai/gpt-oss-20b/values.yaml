@@ -1,0 +1,17 @@
+single:
+  enabled: true
+
+resources:
+  # Model is 20b and bf16
+  nvidia.com/gpu: "1"
+
+# Source: https://huggingface.co/openai/gpt-oss-20b
+cli: "vllm serve openai/gpt-oss-20b
+      --tensor-parallel-size 1
+      --async-scheduling
+      --max-model-len 25000"
+
+storage:
+  ephemeral:
+    enabled: true
+    storage: 214748364800 # 200GB

@@ -1,0 +1,29 @@
+single:
+  enabled: true
+  env:
+    LMCACHE_LOCAL_CPU: "True"
+    LMCACHE_MAX_LOCAL_CPU_SIZE: "100"
+    LMCACHE_USE_EXPERIMENTAL: "True"
+    VLLM_RPC_TIMEOUT: "1000000"
+    LMCACHE_CHUNK_SIZE: "256"
+
+resources:
+  # Model is 20b and bf16
+  nvidia.com/gpu: "1"
+
+images:
+  # Find more tags here: https://hub.docker.com/r/lmcache/vllm-openai/tags
+  vLLM: lmcache/vllm-openai:v0.3.7
+
+# Source: https://huggingface.co/openai/gpt-oss-20b
+cli: "/opt/venv/bin/vllm serve openai/gpt-oss-20b
+      --tensor-parallel-size 1
+      --async-scheduling
+      --max-model-len 25000
+      --kv-transfer-config
+        '{\"kv_connector\":\"LMCacheConnectorV1\",\"kv_role\":\"kv_both\"}'"
+
+storage:
+  ephemeral:
+    enabled: true
+    storage: 214748364800 # 200GB
