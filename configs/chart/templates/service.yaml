@@ -4,6 +4,8 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}
   namespace: default
+  labels:
+    model: {{ .Release.Name }}
 spec:
   selector:
     app: {{ .Release.Name }}

@@ -14,7 +14,9 @@ spec:
   selector:
     matchLabels:
       model: {{ .Release.Name }}
+      {{ if .Values.distributed.enabled }}
       role: leader
+      {{ end }}
 ---
 # Ray is only available in the LWS distributed settings.
 {{ if .Values.distributed.enabled }}
