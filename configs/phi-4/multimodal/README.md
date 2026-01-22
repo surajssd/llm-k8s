@@ -26,7 +26,7 @@ Deploy Kubernetes configs to run the model:
 
 ```bash
 helm upgrade -i phi-4-multimodal \
-  --values configs/phi-4-multimodal/values.yaml \
+  --values configs/phi-4/multimodal/values.yaml \
   ./configs/chart
 ```
 

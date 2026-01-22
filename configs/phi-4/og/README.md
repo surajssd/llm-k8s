@@ -24,7 +24,7 @@ Deploy Kubernetes configs to run the model:
 
 ```bash
 helm upgrade -i phi-4 \
-  --values configs/phi-4/values.yaml \
+  --values configs/phi-4/og/values.yaml \
   ./configs/chart
 ```
 
