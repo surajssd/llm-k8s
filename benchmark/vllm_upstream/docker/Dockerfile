@@ -1,9 +1,9 @@
 # Once vLLM moves to Ubuntu 24.04, we can use the vLLM image again.
-# FROM vllm/vllm-openai:v0.14.0
+# FROM vllm/vllm-openai:v0.15.1
 
 FROM nvcr.io/nvidia/tritonserver:25.12-py3-sdk
 
-ENV VLLM_VERSION=0.14.0 \
+ENV VLLM_VERSION=0.15.1 \
     VLLM_CODE="/root/vllm" \
     SHAREGPT_DATASET_URL="https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/resolve/main/ShareGPT_V3_unfiltered_cleaned_split.json"
 
