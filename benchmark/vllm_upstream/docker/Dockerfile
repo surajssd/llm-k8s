@@ -1,7 +1,7 @@
 # Once vLLM moves to Ubuntu 24.04, we can use the vLLM image again.
 # FROM vllm/vllm-openai:v0.15.1
 
-FROM nvcr.io/nvidia/tritonserver:25.12-py3-sdk
+FROM nvcr.io/nvidia/tritonserver:26.01-py3-sdk
 
 ENV VLLM_VERSION=0.15.1 \
     VLLM_CODE="/root/vllm" \
