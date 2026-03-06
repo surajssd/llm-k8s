@@ -39,7 +39,7 @@ jobs:
 
     - name: Generate tags
       id: tag
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: ghcr.io/surajssd/llm-k8s/vllm
         tags: |
