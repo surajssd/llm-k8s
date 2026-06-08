@@ -22,7 +22,7 @@
         },
         {
             "matchStrings": [
-                "ghcr.io/open-webui/open-webui:(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+                "ghcr.io/open-webui/open-webui:(?<currentValue>v?\\d+\\.\\d+\\.\\d+)"
             ],
             "fileMatch": [
                 "configs/chart/values.yaml"
