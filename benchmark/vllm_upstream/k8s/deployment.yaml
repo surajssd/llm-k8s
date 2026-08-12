@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: benchmark
-        image: ghcr.io/surajssd/llm-k8s/vllm-benchmark:0.26.0
+        image: ghcr.io/surajssd/llm-k8s/vllm-benchmark:0.27.1
         imagePullPolicy: Always
         command: ["/bin/bash"]
         args:
